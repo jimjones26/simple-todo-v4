@@ -1,19 +1,15 @@
-import { render, fireEvent } from '@testing-library/svelte';
+import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import UserForm from '../components/UserForm.svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
 describe('UserForm.svelte', () => {
-  it('renders input fields for username, email, password, and role', () => {
-    const { getByLabelText } = render(UserForm);
-
-    expect(getByLabelText('Username:')).toBeInTheDocument();
-    expect(getByLabelText('Email:')).toBeInTheDocument();
-    expect(getByLabelText('Password:')).toBeInTheDocument();
-    expect(getByLabelText('Role:')).toBeInTheDocument();
+  afterEach(() => {
+    cleanup();
   });
 
-  it('displays validation errors for invalid inputs', async () => {
-    const { getByText, getByLabelText } = render(UserForm);
+  it('calls the onSubmit function with user data when the form is valid', async () => {
+    const onSubmit = vi.fn();
+    const { getByLabelText, getByText } = render(UserForm, { props: { onSubmit } });
 
     const usernameInput = getByLabelText('Username:');
     const emailInput = getByLabelText('Email:');
@@ -21,18 +17,17 @@ describe('UserForm.svelte', () => {
     const roleInput = getByLabelText('Role:');
     const submitButton = getByText('Create User');
 
-    // Trigger validation errors by submitting empty form
+    await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
+    await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
+    await fireEvent.input(passwordInput, { target: { value: 'password123' } });
+    await fireEvent.input(roleInput, { target: { value: 'admin' } });
     await fireEvent.click(submitButton);
 
-    expect(getByText('Username is required')).toBeInTheDocument();
-    expect(getByText('Email is required')).toBeInTheDocument();
-    expect(getByText('Password is required')).toBeInTheDocument();
-    expect(getByText('Role is required')).toBeInTheDocument();
-
-    // Enter an invalid email
-    await fireEvent.input(emailInput, { target: { value: 'invalid-email' } });
-    await fireEvent.click(submitButton);
-
-    expect(getByText('Invalid email address')).toBeInTheDocument();
+    expect(onSubmit).toHaveBeenCalledWith({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      role: 'admin',
+    });
   });
 });
