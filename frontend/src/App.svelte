@@ -3,6 +3,7 @@
   import viteLogo from "/vite.svg";
   import Counter from "./lib/Counter.svelte";
   import UserForm from "./components/UserForm.svelte";
+  import Login from "./components/Login.svelte";
 </script>
 
 <main>
@@ -31,6 +32,7 @@
   <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 
   <UserForm />
+  <Login />
 </main>
 
 <style>
