@@ -1,17 +1,15 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  let username = '';
+  let email = '';
+  let password = '';
+  let role = '';
 
-  let username = "";
-  let email = "";
-  let password = "";
-  let role = "";
+  let usernameError = '';
+  let emailError = '';
+  let passwordError = '';
+  let roleError = '';
 
-  let usernameError = "";
-  let emailError = "";
-  let passwordError = "";
-  let roleError = "";
-
-  const dispatch = createEventDispatcher();
+  export let onSubmit; // Callback prop
 
   function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,14 +17,10 @@
   }
 
   function validateForm() {
-    usernameError = username ? "" : "Username is required";
-    emailError = email
-      ? validateEmail(email)
-        ? ""
-        : "Invalid email format"
-      : "Email is required";
-    passwordError = password ? "" : "Password is required";
-    roleError = role ? "" : "Role is required";
+    usernameError = username ? '' : 'Username is required';
+    emailError = email ? (validateEmail(email) ? '' : 'Invalid email format') : 'Email is required';
+    passwordError = password ? '' : 'Password is required';
+    roleError = role ? '' : 'Role is required';
 
     return !usernameError && !emailError && !passwordError && !roleError;
   }
@@ -34,7 +28,7 @@
   function handleSubmit() {
     if (validateForm()) {
       const userData = { username, email, password, role };
-      dispatch("submit", userData);
+      onSubmit(userData); // Call the callback prop
     }
   }
 </script>
