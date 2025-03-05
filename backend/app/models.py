@@ -1,3 +1,4 @@
+import bcrypt
 from backend.app import db
 from flask_login import UserMixin
 from sqlalchemy import Table, Column, Integer, ForeignKey
@@ -17,6 +18,12 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(50))
     teams = relationship("Team", secondary=user_team, back_populates="users")
     tasks = db.relationship('Task', backref='assignee', lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
 
     def __repr__(self):
         return f'<User {self.username}>'
