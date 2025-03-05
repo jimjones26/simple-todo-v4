@@ -1,5 +1,5 @@
 import pytest
-from backend.app.models import User
+from backend.app.models import User, create_user
 from backend.app import db, create_app
 
 @pytest.fixture
@@ -24,12 +24,7 @@ def test_create_user_success(app):
         password = 'password'
         role = 'admin'
 
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.role = role
-
-        db.session.add(user)
-        db.session.commit()
+        user = create_user(username=username, email=email, password=password, role=role)
 
         # Query the database to confirm the user is saved
         retrieved_user = User.query.filter_by(username=username).first()

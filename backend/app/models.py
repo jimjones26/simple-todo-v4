@@ -3,6 +3,8 @@ from backend.app import db
 from flask_login import UserMixin
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+import re
+from sqlalchemy.exc import IntegrityError
 
 # Define the association table for the many-to-many relationship between User and Team
 user_team = Table('user_team', db.metadata,
@@ -49,3 +51,28 @@ class Task(db.Model):
 
     def __repr__(self):
         return f'<Task {self.title}>'
+
+def create_user(username, email, password, role):
+    """Creates a new user with validation."""
+    if not username or not email or not password or not role:
+        raise ValueError("All fields are required")
+
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        raise ValueError("Invalid email format")
+
+    if User.query.filter_by(username=username).first():
+        raise ValueError("Username already exists")
+
+    if User.query.filter_by(email=email).first():
+        raise ValueError("Email already exists")
+
+    user = User(username=username, email=email, role=role)
+    user.set_password(password)
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return user
+    except IntegrityError:
+        db.session.rollback()
+        raise ValueError("Database error occurred")
