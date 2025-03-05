@@ -8,20 +8,28 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 def create_user_route():
     data = request.get_json()
 
-    if not 
+    # Check if data is provided
+    if not data:
         return jsonify({'message': 'No data provided'}), 400
 
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')
+    # Validate required fields
+    required_fields = ['username', 'email', 'password', 'role']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'message': f'Missing field: {field}'}), 400
+
+    # Extract fields
+    username = data['username']
+    email = data['email']
+    password = data['password']
+    role = data['role']
 
     try:
         user = create_user(username=username, email=email, password=password, role=role)
-        return jsonify({'id': user.id}), 201
+        return jsonify({'id': user.id, 'username': user.username, 'role': user.role}), 201
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except IntegrityError:
-        db = current_app.extensions['sqlalchemy'].db # Access db through the app context
+        db = current_app.extensions['sqlalchemy'].db
         db.session.rollback()
-        return jsonify({'message': 'Could not create user.'}), 400
+        return jsonify({'message': 'User with this username or email already exists.'}), 409
