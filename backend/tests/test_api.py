@@ -18,7 +18,7 @@ def app():
 def client(app):
     return app.test_client()
 
-def test_create_user_api_success(client):
+def test_create_user_api_success(client, app):
     data = {
         'username': 'api_test_user',
         'email': 'api_test@example.com',
@@ -28,7 +28,7 @@ def test_create_user_api_success(client):
     response = client.post('/users', json=data)
     assert response.status_code == 201
 
-    with client.application.app_context():
+    with app.app_context():
         user = User.query.filter_by(username='api_test_user').first()
         assert user is not None
         assert user.email == 'api_test@example.com'
