@@ -1,13 +1,13 @@
 <script>
-  let username = '';
-  let email = '';
-  let password = '';
-  let role = '';
+  let username = "";
+  let email = "";
+  let password = "";
+  let role = "";
 
-  let usernameError = '';
-  let emailError = '';
-  let passwordError = '';
-  let roleError = '';
+  let usernameError = "";
+  let emailError = "";
+  let passwordError = "";
+  let roleError = "";
 
   export let onSubmit; // Callback prop
 
@@ -17,15 +17,20 @@
   }
 
   function validateForm() {
-    usernameError = username ? '' : 'Username is required';
-    emailError = email ? (validateEmail(email) ? '' : 'Invalid email format') : 'Email is required';
-    passwordError = password ? '' : 'Password is required';
-    roleError = role ? '' : 'Role is required';
+    usernameError = username ? "" : "Username is required";
+    emailError = email
+      ? validateEmail(email)
+        ? ""
+        : "Invalid email format"
+      : "Email is required";
+    passwordError = password ? "" : "Password is required";
+    roleError = role ? "" : "Role is required";
 
     return !usernameError && !emailError && !passwordError && !roleError;
   }
 
-  function handleSubmit() {
+  function handleSubmit(event) {
+    event.preventDefault(); // Prevent default form submission
     if (validateForm()) {
       const userData = { username, email, password, role };
       onSubmit(userData); // Call the callback prop
