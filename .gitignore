@@ -64,3 +64,8 @@ npm-debug.log*
 
 # Aider
 .aider*
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
