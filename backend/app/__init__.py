@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from .config import Config
-from . import views  # Import the views blueprint
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -16,6 +15,7 @@ def create_app():
     app.config['DEBUG'] = True
 
     db.init_app(app)
+    from . import views
 
     login_manager.init_app(app)
     migrate.init_app(app, db)
