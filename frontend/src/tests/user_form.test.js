@@ -1,15 +1,20 @@
 import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import UserForm from '../components/UserForm.svelte';
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { post } from '../utils/api';
+
+// Mock the post function to return a resolved promise
+vi.mock('../utils/api', () => ({
+  post: vi.fn().mockResolvedValue({}),
+}));
 
 describe('UserForm.svelte', () => {
   afterEach(() => {
     cleanup();
   });
 
-  it('calls the onSubmit function with user data when the form is valid', async () => {
-    const onSubmit = vi.fn();
-    const { getByLabelText, getByText } = render(UserForm, { props: { onSubmit } });
+  it('calls the post function with user data when the form is valid', async () => {
+    const { getByLabelText, getByText } = render(UserForm); // No onSubmit prop needed
 
     const usernameInput = getByLabelText('Username:');
     const emailInput = getByLabelText('Email:');
@@ -23,7 +28,7 @@ describe('UserForm.svelte', () => {
     await fireEvent.input(roleInput, { target: { value: 'admin' } });
     await fireEvent.click(submitButton);
 
-    expect(onSubmit).toHaveBeenCalledWith({
+    expect(post).toHaveBeenCalledWith('/users', {
       username: 'testuser',
       email: 'test@example.com',
       password: 'password123',
