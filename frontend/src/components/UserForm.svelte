@@ -1,4 +1,6 @@
 <script>
+  import { post } from '../utils/api';
+
   let username = "";
   let email = "";
   let password = "";
@@ -8,8 +10,8 @@
   let emailError = "";
   let passwordError = "";
   let roleError = "";
-
-  export let onSubmit; // Callback prop
+  let submissionError = "";
+  let submissionSuccess = false;
 
   function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,16 +31,40 @@
     return !usernameError && !emailError && !passwordError && !roleError;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault(); // Prevent default form submission
+    submissionError = ""; // Clear any previous submission errors
+    submissionSuccess = false;
+
     if (validateForm()) {
       const userData = { username, email, password, role };
-      onSubmit(userData); // Call the callback prop
+
+      try {
+        const response = await post('/users', userData);
+        // Handle successful submission
+        submissionSuccess = true;
+        // Clear the form
+        username = "";
+        email = "";
+        password = "";
+        role = "";
+      } catch (error) {
+        // Handle submission errors
+        submissionError = error.message || "An unexpected error occurred.";
+      }
     }
   }
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
+  {#if submissionSuccess}
+    <p class="success">User created successfully!</p>
+  {/if}
+
+  {#if submissionError}
+    <p class="error">{submissionError}</p>
+  {/if}
+
   <div>
     <label for="username">Username:</label>
     <input type="text" id="username" bind:value={username} />
@@ -77,5 +103,8 @@
 <style>
   .error {
     color: red;
+  }
+  .success {
+    color: green;
   }
 </style>
