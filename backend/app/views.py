@@ -1,8 +1,15 @@
 from flask import request, jsonify, Blueprint, current_app
-from backend.app.models import create_user
+from backend.app.models import create_user, User  # Import User
 from sqlalchemy.exc import IntegrityError
+from flask_login import login_user
 
 bp = Blueprint('users', __name__, url_prefix='/users')
+
+def authenticate_user(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.check_password(password):
+        return user
+    return None
 
 @bp.route('', methods=['POST'])
 def create_user_route():
