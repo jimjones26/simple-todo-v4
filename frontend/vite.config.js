@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [svelte()],
-  test: {
-    globals: true,              // Enables global test functions like describe, it, expect
-    environment: 'jsdom',       // Simulates a browser DOM for Svelte components
-    setupFiles: ['./vitest.setup.js'], // Path to a setup file (we’ll create this next)
-  },
+	// ...
+	// Tell Vitest to use the `browser` entry points in `package.json` files, even though it's running in Node
+	resolve: process.env.VITEST
+		? {
+				conditions: ['browser']
+			}
+		: undefined
 });
