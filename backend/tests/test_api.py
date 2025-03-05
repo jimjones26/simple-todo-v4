@@ -10,6 +10,11 @@ def app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     with app.app_context():
         db.create_all()
+        # Create a test user for login tests
+        test_user = User(username='testuser', email='test@example.com', role='user')
+        test_user.set_password('password')
+        db.session.add(test_user)
+        db.session.commit()
         yield app
         db.session.remove()
         db.drop_all()
@@ -42,3 +47,21 @@ def test_create_user_api_invalid(client):
     }
     response = client.post('/users', json=data)
     assert response.status_code == 400
+
+def test_login_api_success(client):
+    data = {
+        'username': 'testuser',
+        'password': 'password'
+    }
+    response = client.post('/login', json=data)
+    assert response.status_code == 200
+    assert response.json == {'status': 'success'}
+
+def test_login_api_failure(client):
+    data = {
+        'username': 'testuser',
+        'password': 'wrongpassword'
+    }
+    response = client.post('/login', json=data)
+    assert response.status_code == 401
+    assert response.json == {'status': 'error', 'message': 'Invalid credentials'}
