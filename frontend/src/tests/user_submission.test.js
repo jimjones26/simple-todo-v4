@@ -16,9 +16,7 @@ describe('UserForm submission', () => {
     // @ts-ignore
     const mockPost = api.post.mockResolvedValueOnce({ id: 1, username: 'testuser', role: 'admin' });
 
-    render(UserForm, {
-      onSubmit: () => {} // Mock onSubmit function
-    });
+    render(UserForm);
 
     const usernameInput = screen.getByLabelText('Username:');
     const emailInput = screen.getByLabelText('Email:');
