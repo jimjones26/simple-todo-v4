@@ -3,7 +3,8 @@ from backend.app.models import create_user, User  # Import User
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user
 
-bp = Blueprint('users', __name__, url_prefix='/users')
+#bp = Blueprint('users', __name__, url_prefix='/users') #remove this line
+bp = Blueprint('auth', __name__) # add this line
 
 def authenticate_user(username, password):
     user = User.query.filter_by(username=username).first()
@@ -11,7 +12,7 @@ def authenticate_user(username, password):
         return user
     return None
 
-@bp.route('', methods=['POST'])
+@bp.route('/users', methods=['POST']) # change this line
 def create_user_route():
     data = request.get_json()
 
@@ -40,3 +41,20 @@ def create_user_route():
         db = current_app.extensions['sqlalchemy'].db
         db.session.rollback()
         return jsonify({'message': 'User with this username or email already exists.'}), 409
+
+@bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+
+    username = data.get('username')
+    password = data.get('password')
+
+    user = authenticate_user(username, password)
+
+    if user:
+        login_user(user)
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
