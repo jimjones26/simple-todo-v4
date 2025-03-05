@@ -69,3 +69,6 @@ npm-debug.log*
 .venv/
 venv/
 ENV/
+
+# Env files
+backend/.env
