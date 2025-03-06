@@ -75,3 +75,11 @@ def create_user(username, email, password, role):
     except Exception:
         db.session.rollback()
         raise ValueError("Database error occurred")
+
+    def get_dict(self): #for returning user data
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'role': self.role
+        }

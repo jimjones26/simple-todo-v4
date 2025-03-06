@@ -30,6 +30,6 @@ def create_app():
         return models.User.query.get(int(id))
 
     from . import views
-    app.register_blueprint(views.bp)
+    app.register_blueprint(views.bp) #register after routes are defined
 
     return app

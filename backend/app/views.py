@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, current_app
+from flask import request, jsonify, Blueprint
 from backend.app import db
 from backend.app.models import User, create_user  # Import from models.py
 from sqlalchemy.exc import IntegrityError
@@ -40,23 +40,21 @@ def create_user_route():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        data = request.get_json()  # Only get JSON for POST requests
-        if not data:
-            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+    if current_user.is_authenticated:
+        return jsonify(current_user.get_dict())
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
 
-        username = data.get('username')
-        password = data.get('password')
+    if not username or not password:
+        return jsonify({'message': 'Username and password are required'}), 400
 
-        user = authenticate_user(username, password)
+    user = authenticate_user(username, password)
 
-        if user:
-            login_user(user, remember=True)
-            return jsonify({'status': 'success'}), 200
-        else:
-            return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
-    else: # It's a GET request
-        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+    if user and user.check_password(password):
+        login_user(user, remember=True)
+        return jsonify(user.get_dict())
+    return jsonify({'message': 'Invalid credentials'}), 401
 
 @bp.route('/logout')
 @login_required
