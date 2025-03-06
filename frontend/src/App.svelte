@@ -1,10 +1,10 @@
 <script>
-  // frontend/src/App.svelte
-  import { onMount } from 'svelte';
-  import { auth, checkAuth } from './stores/authStore'; // Import the store and checkAuth
-  import Login from './components/Login.svelte'; // Import your Login component
-  import { logout } from './utils/api'; // Import the logout function
-  let logoutError = ''; // Add a variable to store logout errors
+  import { onMount } from "svelte";
+  import { auth, checkAuth } from "./stores/authStore";
+  import Login from "./components/Login.svelte";
+  import UserForm from "./components/UserForm.svelte";
+  import { logout } from "./utils/api";
+  let logoutError = "";
 
   // Call checkAuth when the component mounts
   onMount(async () => {
@@ -12,14 +12,14 @@
   });
 
   async function handleLogout() {
-      logoutError = ''; // Clear any previous error
-      try {
-          await logout(); // Call the logout function from api.js
-          auth.set({ isAuthenticated: false, user: null, isLoading: false }); // Update the store
-      } catch (error) {
-          console.error("Logout failed:", error);
-          logoutError = 'Logout failed. Please try again.'; // Set a user-friendly error message
-      }
+    logoutError = "";
+    try {
+      await logout();
+      auth.set({ isAuthenticated: false, user: null, isLoading: false });
+    } catch (error) {
+      console.error("Logout failed:", error);
+      logoutError = "Logout failed. Please try again.";
+    }
   }
 </script>
 
@@ -35,9 +35,12 @@
   {/if}
 
   {#if !$auth.isAuthenticated}
-      <Login />
+    <Login />
   {/if}
 {/if}
+
+<UserForm />
+
 <style>
   .error {
     color: red;
