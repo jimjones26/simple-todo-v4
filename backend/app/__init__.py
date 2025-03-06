@@ -12,8 +12,8 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['SECRET_KEY'] = 'your_secret_key'
-    app.config['DEBUG'] = True
+    # app.config['SECRET_KEY'] = 'your_secret_key'  <- REMOVE THIS
+    # app.config['DEBUG'] = True                    <- REMOVE THIS
 
     # Enable CORS for all routes and origins
     CORS(app, supports_credentials=True)

@@ -1,5 +1,6 @@
 import logging
 from logging.config import fileConfig
+import os  # Import the os module
 
 from flask import current_app
 
@@ -25,6 +26,10 @@ def get_engine():
 
 
 def get_engine_url():
+    # Prioritize environment variable, then fall back to Flask-SQLAlchemy
+    database_uri = os.environ.get('DATABASE_URI')
+    if database_uri:
+        return database_uri.replace('%', '%%')
     try:
         return get_engine().url.render_as_string(hide_password=False).replace(
             '%', '%%')
@@ -36,7 +41,7 @@ def get_engine_url():
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-config.set_main_option('sqlalchemy.url', get_engine_url())
+config.set_main_option('sqlalchemy.url', get_engine_url())  # This line is crucial
 target_db = current_app.extensions['migrate'].db
 
 # other values from the config, defined by the needs of env.py,
