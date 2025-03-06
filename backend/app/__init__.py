@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_cors import CORS  # Import CORS
 from .config import Config
 
 db = SQLAlchemy()
@@ -13,6 +14,9 @@ def create_app():
     app.config.from_object(Config)
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['DEBUG'] = True
+
+    # Enable CORS for all routes and origins
+    CORS(app)
 
     db.init_app(app)
     from . import views
