@@ -1,7 +1,8 @@
 import os
+import secrets
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'a_default_secret_key')  # Provide a default
+    SECRET_KEY = secrets.token_hex(32)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI', 'sqlite:///app.db') # Provide a default
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SESSION_COOKIE_SECURE = False # Consider setting this based on environment (e.g., True in production)
+    SESSION_COOKIE_SECURE = False
