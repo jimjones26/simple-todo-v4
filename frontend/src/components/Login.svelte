@@ -1,5 +1,5 @@
 <script>
-  import { post } from '../utils/api';
+  import { post, get } from '../utils/api'; // Import get
   import { auth } from '../stores/authStore'; // Import the auth store
 
   let username = '';
@@ -18,18 +18,20 @@
     }
 
     try {
-      const response = await post('/login', { username, password });
+      const loginResponse = await post('/login', { username, password });
 
-      if (response.status === 'success') {
-        // Update the auth store on successful login.  This will
-        // automatically cause App.svelte to re-render, showing the
-        // logged-in view.  No explicit navigation is needed.
+      if (loginResponse.status === 'success') {
+        // Get user data from /protected after successful login
+        const userResponse = await get('/protected');
+
+        // Update the auth store with the full user data
         auth.update(current => {
-          return { ...current, isAuthenticated: true, user: { username: username } }; // Update user info as needed
+          return { ...current, isAuthenticated: true, user: userResponse, isLoading: false };
         });
+
       } else {
         // Handle the case where the backend returns an error status
-        errorMessage = response.message || 'An unexpected error occurred.';
+        errorMessage = loginResponse.message || 'An unexpected error occurred.';
       }
     } catch (error) {
       // Handle network errors or errors thrown by handleResponse
