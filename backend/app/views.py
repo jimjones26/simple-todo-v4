@@ -38,22 +38,25 @@ def create_user_route():
         db.session.rollback()
         return jsonify({'message': 'User with this username or email already exists.'}), 409
 
-@bp.route('/login', methods=['POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     data = request.get_json()
-    if not data:
-        return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+    if request.method == 'POST':
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
 
-    username = data.get('username')
-    password = data.get('password')
+        username = data.get('username')
+        password = data.get('password')
 
-    user = authenticate_user(username, password)
+        user = authenticate_user(username, password)
 
-    if user:
-        login_user(user, remember=True)
-        return jsonify({'status': 'success'}), 200
-    else:
-        return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+        if user:
+            login_user(user, remember=True)
+            return jsonify({'status': 'success'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+    else: # It's a GET request
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
 
 @bp.route('/logout')
 @login_required
