@@ -40,8 +40,8 @@ def create_user_route():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    data = request.get_json()
     if request.method == 'POST':
+        data = request.get_json()  # Only get JSON for POST requests
         if not data:
             return jsonify({'status': 'error', 'message': 'No data provided'}), 400
 
