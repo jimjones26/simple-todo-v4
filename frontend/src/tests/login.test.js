@@ -1,26 +1,34 @@
-import { render, fireEvent, screen } from '@testing-library/svelte';
+import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import Login from '../components/Login.svelte';
+import { describe, it, expect, afterEach } from 'vitest';
 
-describe('Login component', () => {
-  test('renders a form with username and password fields and validates that both are required', async () => {
-    const { getByLabelText, getByRole } = render(Login);
+describe('Login.svelte', () => {
+  afterEach(() => {
+    cleanup(); // Clean up after each test, matching the working test
+  });
 
-    const usernameField = getByLabelText('Username');
-    const passwordField = getByLabelText('Password');
-    const submitButton = getByRole('button', { name: 'Login' });
+  it('renders form with username and password fields and shows validation errors when submitted empty', async () => {
+    // Render the component and get query functions, like the working test
+    const { getByLabelText, getByText, findByText } = render(Login);
 
-    expect(usernameField).toBeInTheDocument();
-    expect(passwordField).toBeInTheDocument();
+    // Query form elements, similar to getByLabelText and getByText in the working test
+    const usernameInput = getByLabelText('Username');
+    const passwordInput = getByLabelText('Password');
+    const submitButton = getByText('Login');
+
+    // Assert fields and button are rendered, using toBeInTheDocument like the working test implies
+    expect(usernameInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
     expect(submitButton).toBeInTheDocument();
 
-    // Attempt to submit without filling the fields
+    // Simulate clicking the submit button without input, mirroring fireEvent usage
     await fireEvent.click(submitButton);
 
-    // Check for validation messages
-    // We're anticipating that the component will display error messages with specific text
-    const usernameError = await screen.findByText('Username is required');
-    const passwordError = await screen.findByText('Password is required');
+    // Check for validation errors, using findByText for async DOM updates
+    const usernameError = await findByText('Username is required');
+    const passwordError = await findByText('Password is required');
 
+    // Assert errors are in the document, consistent with testing-library style
     expect(usernameError).toBeInTheDocument();
     expect(passwordError).toBeInTheDocument();
   });
