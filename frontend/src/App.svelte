@@ -41,6 +41,8 @@
 
 <UserForm />
 
+{JSON.stringify({ auth }, null, 2)}
+
 <style>
   .error {
     color: red;

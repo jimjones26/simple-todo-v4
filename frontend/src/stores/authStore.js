@@ -16,14 +16,14 @@ export async function checkAuth() {
         // This endpoint should return user information if logged in, or an error if not.
         const response = await get('/protected'); // Example endpoint - see backend changes below
 
-        if (response) {
+        if (response.status === 200) { // Check for success status
             // Update the store with the user data and set isAuthenticated to true
             auth.set({
                 isAuthenticated: true,
                 user: response, // Assuming the backend returns user data
                 isLoading: false,
             });
-        } else {
+        } else { // Handle non-success status (including 401)
           auth.set({
             isAuthenticated: false,
             user: null,
@@ -32,7 +32,8 @@ export async function checkAuth() {
         }
 
     } catch (error) {
-        // If there's an error (e.g., 401 Unauthorized), the user is not logged in
+        // If there's an error (e.g., network error), also set to not authenticated
+        console.error("Error in checkAuth:", error); // Log the error for debugging
         auth.set({
             isAuthenticated: false,
             user: null,
