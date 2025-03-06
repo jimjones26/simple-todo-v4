@@ -41,7 +41,7 @@
 
 <UserForm />
 
-{JSON.stringify({ auth }, null, 2)}
+{JSON.stringify({auth: $auth}, null, 2)}
 
 <style>
   .error {

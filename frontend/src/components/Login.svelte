@@ -1,67 +1,37 @@
 <script>
-  import { post, get } from '../utils/api'; // Import get
-  import { auth } from '../stores/authStore'; // Import the auth store
+  import { post } from '../utils/api';
+  import { auth } from '../stores/authStore';
 
   let username = '';
   let password = '';
-  let usernameError = '';
-  let passwordError = '';
-  let errorMessage = ''; // Add a variable to store the error message
+  let error = '';
 
-  async function handleSubmit() { // Make the function async
-    usernameError = username ? '' : 'Username is required';
-    passwordError = password ? '' : 'Password is required';
-    errorMessage = ''; // Reset error message on each submit attempt
-
-    if (usernameError || passwordError) {
-      return; // Prevent submission if there are errors
-    }
-
+  async function handleSubmit() {
+    error = '';
     try {
-      const loginResponse = await post('/login', { username, password });
-
-      if (loginResponse.status === 'success') {
-        // Get user data from /protected after successful login
-        const userResponse = await get('/protected');
-
-        // Update the auth store with the full user data
-        auth.update(current => {
-          return { ...current, isAuthenticated: true, user: userResponse, isLoading: false };
-        });
-
-      } else {
-        // Handle the case where the backend returns an error status
-        errorMessage = loginResponse.message || 'An unexpected error occurred.';
-      }
-    } catch (error) {
-      // Handle network errors or errors thrown by handleResponse
-      errorMessage = error.message || 'An unexpected error occurred.';
+      const response = await post('/login', { username, password }); // Use POST to /login
+      // Assuming the backend returns user data on successful login
+      auth.set({ isAuthenticated: true, user: response, isLoading: false }); // Update auth store
+    } catch (err) {
+      console.error("Login failed:", err);
+      error = 'Invalid credentials. Please try again.'; // More user-friendly error
     }
   }
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
   <div>
-    <label for="username">Username</label>
-    <input type="text" id="username" bind:value={username} />
-    {#if usernameError}
-      <p class="error">{usernameError}</p>
-    {/if}
+    <label for="username">Username:</label>
+    <input id="username" type="text" bind:value={username} required />
   </div>
-
   <div>
-    <label for="password">Password</label>
-    <input type="password" id="password" bind:value={password} />
-    {#if passwordError}
-      <p class="error">{passwordError}</p>
-    {/if}
+    <label for="password">Password:</label>
+    <input id="password" type="password" bind:value={password} required />
   </div>
-
-  {#if errorMessage}
-    <p class="error">{errorMessage}</p>
-  {/if}
-
   <button type="submit">Login</button>
+  {#if error}
+    <p class="error">{error}</p>
+  {/if}
 </form>
 
 <style>
