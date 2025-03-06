@@ -68,4 +68,4 @@ def test_login_api_failure(client):
     }
     response = client.post('/login', json=data)
     assert response.status_code == 401
-    assert response.json == {'message': 'Invalid credentials', 'status': 'error'}
+    assert response.json == {'message': 'Invalid credentials'}
