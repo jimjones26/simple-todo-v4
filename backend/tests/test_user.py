@@ -1,21 +1,6 @@
 import pytest
 from backend.app.models import User, create_user
-from backend.app import db, create_app
-
-@pytest.fixture
-def app():
-    app = create_app()
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use an in-memory database for testing
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.session.remove()
-        db.drop_all()
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
+from backend.app import db
 
 def test_create_user_success(app):
     with app.app_context():
