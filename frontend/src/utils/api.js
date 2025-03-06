@@ -21,6 +21,7 @@ export async function post(endpoint, data) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    credentials: 'include',
   });
   return handleResponse(response);
 }

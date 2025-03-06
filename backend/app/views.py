@@ -54,7 +54,7 @@ def login():
     user = authenticate_user(username, password)
 
     if user:
-        login_user(user)
+        login_user(user, remember=True)
         return jsonify({'status': 'success'}), 200
     else:
         return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401

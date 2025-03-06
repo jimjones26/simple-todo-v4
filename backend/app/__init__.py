@@ -16,7 +16,7 @@ def create_app():
     app.config['DEBUG'] = True
 
     # Enable CORS for all routes and origins
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     db.init_app(app)
     from . import views
