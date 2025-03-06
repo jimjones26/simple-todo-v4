@@ -55,7 +55,11 @@ def test_login_api_success(client):
     }
     response = client.post('/login', json=data)
     assert response.status_code == 200
-    assert response.json == {'status': 'success'}
+    assert 'id' in response.json
+    assert 'username' in response.json
+    assert 'email' in response.json
+    assert 'role' in response.json
+    assert response.json['username'] == 'testuser'
 
 def test_login_api_failure(client):
     data = {
@@ -64,4 +68,4 @@ def test_login_api_failure(client):
     }
     response = client.post('/login', json=data)
     assert response.status_code == 401
-    assert response.json == {'status': 'error', 'message': 'Invalid credentials'}
+    assert response.json == {'message': 'Invalid credentials', 'status': 'error'}

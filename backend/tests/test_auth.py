@@ -2,7 +2,7 @@ import pytest
 from backend.app import create_app, login_manager
 from backend.app.models import User
 from backend.app import db  # Import db
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 @pytest.fixture
 def app():
@@ -44,3 +44,17 @@ def test_authenticate_user_failure(app):
         from backend.app.views import authenticate_user
         user = authenticate_user('testuser', 'wrongpassword')
         assert user is None
+
+def test_logout_terminates_session(client, app):
+    with app.test_request_context():
+        # Log in the test user
+        with client:
+            client.post('/login', json={
+                'username': 'testuser',
+                'password': 'password'
+            })
+            assert current_user.is_authenticated
+
+            # Log out the user
+            client.get('/logout')
+            assert not current_user.is_authenticated
