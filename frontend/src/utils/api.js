@@ -11,6 +11,10 @@ async function handleResponse(response) {
 
 export async function get(endpoint) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     credentials: 'include',
   });
   return handleResponse(response);

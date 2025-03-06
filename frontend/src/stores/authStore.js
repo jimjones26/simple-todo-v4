@@ -1,12 +1,18 @@
 import { writable } from 'svelte/store';
+import { get } from '../utils/api';
 
 export const auth = writable({
     isAuthenticated: false,
     user: null,
-    isLoading: false, // Start with isLoading: false
+    isLoading: true // Start with loading state
 });
 
 export async function checkAuth() {
-    console.log("checkAuth called");
-    //For a more robust solution in the future, use a dedicated endpoint like /api/auth/status
+    auth.update(current => ({ ...current, isLoading: true }));
+    try {
+        const response = await get('/auth/status');
+        auth.set({ isAuthenticated: true, user: response, isLoading: false });
+    } catch (error) {
+        auth.set({ isAuthenticated: false, user: null, isLoading: false });
+    }
 }

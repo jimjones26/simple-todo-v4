@@ -73,3 +73,9 @@ def protected():
         'email': current_user.email,
         'role': current_user.role,
     })
+
+@bp.route('/auth/status')
+def auth_status():
+    if current_user.is_authenticated:
+        return jsonify(current_user.get_dict()), 200
+    return jsonify({'message': 'Not authenticated'}), 401
