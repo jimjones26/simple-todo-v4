@@ -30,7 +30,7 @@ def test_login_manager():
     #login_manager.init_app(app)  # Remove this line
 
     with app.app_context():
-        assert login_manager.login_view == 'login'
+        assert login_manager.login_view == 'auth.login'
 
 def test_authenticate_user_success(app):
     with app.app_context():
