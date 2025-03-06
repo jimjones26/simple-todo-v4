@@ -1,6 +1,6 @@
 // frontend/src/utils/api.js
 
-const API_BASE_URL = 'http://localhost:5000'; // Or your backend URL
+const API_BASE_URL = 'http://127.0.0.1:5000'; // Or your backend URL
 
 async function handleResponse(response) {
   if (!response.ok) {
