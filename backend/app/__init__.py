@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 from .config import Config
 
 db = SQLAlchemy()
@@ -12,19 +12,24 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    # app.config['SECRET_KEY'] = 'your_secret_key'  <- REMOVE THIS
-    # app.config['DEBUG'] = True                    <- REMOVE THIS
 
     # Enable CORS for all routes and origins
     CORS(app, supports_credentials=True)
 
     db.init_app(app)
-    from . import views
+
+    # Import models to register them with db
+    from . import models
 
     login_manager.init_app(app)
     migrate.init_app(app, db)
     login_manager.login_view = 'login'
 
-    app.register_blueprint(views.bp)  # Register the blueprint
+    @login_manager.user_loader
+    def load_user(id):
+        return models.User.query.get(int(id))
+
+    from . import views
+    app.register_blueprint(views.bp)
 
     return app

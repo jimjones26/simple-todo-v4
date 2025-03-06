@@ -71,4 +71,4 @@ venv/
 ENV/
 
 # Env files
-backend/.env
+backend/.flaskenv

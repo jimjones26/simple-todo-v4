@@ -1,12 +1,11 @@
-import bcrypt
 from backend.app import db
+import bcrypt
 from flask_login import UserMixin
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 import re
-from sqlalchemy.exc import IntegrityError
 
-# Define the association table for the many-to-many relationship between User and Team
+# Define the association table
 user_team = Table('user_team', db.metadata,
     Column('user_id', Integer, ForeignKey('user.id'), primary_key=True),
     Column('team_id', Integer, ForeignKey('team.id'), primary_key=True)
@@ -73,6 +72,6 @@ def create_user(username, email, password, role):
         db.session.add(user)
         db.session.commit()
         return user
-    except IntegrityError:
+    except Exception:
         db.session.rollback()
         raise ValueError("Database error occurred")
