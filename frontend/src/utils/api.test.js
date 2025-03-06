@@ -10,7 +10,7 @@ beforeEach(() => {
 describe('get function', () => {
   test('makes a GET request and returns JSON data on success', async () => {
     // Arrange: Mock a successful response
-    const mockData = { data: 'test data' };
+    const mockData = {  data: 'test data' };
     // @ts-ignore
     global.fetch.mockResolvedValueOnce({
       ok: true,
@@ -22,7 +22,7 @@ describe('get function', () => {
     const result = await get('/test');
 
     // Assert: Verify the request and response
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5000/test');
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:5000/test', {credentials: 'include'});
     expect(result).toEqual(mockData);
   });
 
@@ -66,7 +66,7 @@ describe('post function', () => {
 
     // Assert: Verify the request details and response
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:5000/test',
+      'http://127.0.0.1:5000/test',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
