@@ -22,7 +22,7 @@ describe('get function', () => {
     const result = await get('/test');
 
     // Assert: Verify the request and response
-    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:5000/test', {credentials: 'include'});
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:5001/test', {credentials: 'include'});
     expect(result).toEqual(mockData);
   });
 
@@ -66,7 +66,7 @@ describe('post function', () => {
 
     // Assert: Verify the request details and response
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://127.0.0.1:5000/test',
+      'http://127.0.0.1:5001/test',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

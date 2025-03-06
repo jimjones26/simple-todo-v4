@@ -29,8 +29,8 @@ describe('Login Form Submission', () => {
     const { getByLabelText, getByText } = render(Login);
 
     // Act: Fill in the form and submit
-    const usernameInput = getByLabelText('Username');
-    const passwordInput = getByLabelText('Password');
+    const usernameInput = getByLabelText('Username:');
+    const passwordInput = getByLabelText('Password:');
     const submitButton = getByText('Login');
 
     await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
@@ -58,8 +58,8 @@ describe('Login Form Submission', () => {
     const { getByLabelText, getByText, findByText } = render(Login);
 
     // Act: Fill in the form and submit
-    const usernameInput = getByLabelText('Username');
-    const passwordInput = getByLabelText('Password');
+    const usernameInput = getByLabelText('Username:');
+    const passwordInput = getByLabelText('Password:');
     const submitButton = getByText('Login');
 
     await fireEvent.input(usernameInput, { target: { value: 'testuser' } });

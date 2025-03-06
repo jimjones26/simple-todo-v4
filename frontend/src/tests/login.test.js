@@ -12,8 +12,8 @@ describe('Login.svelte', () => {
     const { getByLabelText, getByText, findByText } = render(Login);
 
     // Query form elements, similar to getByLabelText and getByText in the working test
-    const usernameInput = getByLabelText('Username');
-    const passwordInput = getByLabelText('Password');
+    const usernameInput = getByLabelText('Username:');
+    const passwordInput = getByLabelText('Password:');
     const submitButton = getByText('Login');
 
     // Assert fields and button are rendered, using toBeInTheDocument like the working test implies
