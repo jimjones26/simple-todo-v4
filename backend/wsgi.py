@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from backend.app import create_app
 
 # Load environment variables from .env file in the same directory
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv_path = os.path.join(os.path.dirname(__file__), '../backend/.flaskenv')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
