@@ -1,5 +1,6 @@
 <script>
   import { post } from '../utils/api';
+  import { auth } from '../stores/authStore'; // Import the auth store
 
   let username = '';
   let password = '';
@@ -20,9 +21,12 @@
       const response = await post('/login', { username, password });
 
       if (response.status === 'success') {
-        // Navigate to dashboard (replace with your actual navigation logic)
-        // goto('/dashboard'); // Assuming you have a goto function
-        console.log("Login successful, navigating to dashboard"); // Placeholder
+        // Update the auth store on successful login.  This will
+        // automatically cause App.svelte to re-render, showing the
+        // logged-in view.  No explicit navigation is needed.
+        auth.update(current => {
+          return { ...current, isAuthenticated: true, user: { username: username } }; // Update user info as needed
+        });
       } else {
         // Handle the case where the backend returns an error status
         errorMessage = response.message || 'An unexpected error occurred.';

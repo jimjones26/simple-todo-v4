@@ -10,7 +10,9 @@ async function handleResponse(response) {
 }
 
 export async function get(endpoint) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`);
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    credentials: 'include',
+  });
   return handleResponse(response);
 }
 
@@ -24,4 +26,9 @@ export async function post(endpoint, data) {
     credentials: 'include',
   });
   return handleResponse(response);
+}
+
+// Add a logout function
+export async function logout() {
+    return get('/logout');
 }

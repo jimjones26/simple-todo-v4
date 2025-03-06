@@ -1,10 +1,10 @@
 from flask import request, jsonify, Blueprint, current_app
-from backend.app.models import create_user, User  # Import User
+from backend.app.models import create_user, User, db  # Import User and db
 from sqlalchemy.exc import IntegrityError
-from flask_login import login_user
+from flask_login import login_user, logout_user, login_required, current_user
 
-#bp = Blueprint('users', __name__, url_prefix='/users') #remove this line
-bp = Blueprint('auth', __name__) # add this line
+# Use 'auth' as the blueprint name, and don't set a url_prefix here
+bp = Blueprint('auth', __name__)
 
 def authenticate_user(username, password):
     user = User.query.filter_by(username=username).first()
@@ -12,7 +12,7 @@ def authenticate_user(username, password):
         return user
     return None
 
-@bp.route('/users', methods=['POST']) # change this line
+@bp.route('/users', methods=['POST'])
 def create_user_route():
     data = request.get_json()
 
@@ -38,7 +38,7 @@ def create_user_route():
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
     except IntegrityError:
-        db = current_app.extensions['sqlalchemy'].db
+        # Access the database session correctly through the current app
         db.session.rollback()
         return jsonify({'message': 'User with this username or email already exists.'}), 409
 
@@ -58,3 +58,22 @@ def login():
         return jsonify({'status': 'success'}), 200
     else:
         return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'}), 200
+
+@bp.route('/protected')
+@login_required
+def protected():
+    """
+    A protected endpoint that requires authentication.
+    """
+    return jsonify({
+        'id': current_user.id,
+        'username': current_user.username,
+        'email': current_user.email,
+        'role': current_user.role,
+    })
