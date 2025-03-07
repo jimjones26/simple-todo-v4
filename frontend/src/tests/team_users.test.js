@@ -27,7 +27,7 @@ describe('TeamUsers.svelte', () => {
 
     // Verify form elements
     expect(screen.getByLabelText(/Team:/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Users:/i)).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /Users:/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Add Users/i })).toBeInTheDocument()
   })
 
