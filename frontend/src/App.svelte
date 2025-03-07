@@ -7,6 +7,7 @@
   import TeamForm from "./components/TeamForm.svelte";
   import { logout, get } from "./utils/api";
   import TeamUsers from "./components/TeamUsers.svelte";
+  import TaskForm from "./components/TaskForm.svelte";
 
   let logoutError = "";
   let teams = [];
@@ -14,14 +15,14 @@
 
   onMount(async () => {
     await checkAuth();
-    if ($auth.isAuthenticated && $auth.user?.role === 'admin') {
+    if ($auth.isAuthenticated && $auth.user?.role === "admin") {
       try {
-        const teamsResponse = await get('/teams');
-        const usersResponse = await get('/users');
+        const teamsResponse = await get("/teams");
+        const usersResponse = await get("/users");
         teams = teamsResponse;
         allUsers = usersResponse;
       } catch (error) {
-        console.error('Error fetching ', error);
+        console.error("Error fetching ", error);
       }
     }
   });
@@ -45,6 +46,8 @@
     <Dashboard on:logout={handleLogout} user={$auth.user} {logoutError} />
     <TeamForm />
     <TeamUsers {teams} {allUsers} />
+    <TaskForm {teams} />
+    <!-- Pass the teams prop here -->
   {/if}
 
   {#if !$auth.isAuthenticated}
