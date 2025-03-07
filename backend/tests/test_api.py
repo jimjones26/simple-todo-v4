@@ -237,3 +237,72 @@ def test_remove_users_from_team_api(client):
             db.session.delete(user2)
             db.session.delete(user3)
             db.session.commit()
+
+def test_create_task_api(client):
+    """Test task creation API"""
+    # Create admin user and login
+    admin_data = {
+        'username': 'taskadmin',
+        'email': 'taskadmin@example.com',
+        'password': 'adminpass123',
+        'role': 'admin'
+    }
+    create_response = client.post('/users', json=admin_data)
+    assert create_response.status_code == 201
+
+    login_response = client.post('/login', json={
+        'username': 'taskadmin',
+        'password': 'adminpass123'
+    })
+    assert login_response.status_code == 200
+
+    # Create a team
+    team_data = {
+        'name': 'Task Team',
+        'description': 'Team for task creation test'
+    }
+    team_response = client.post('/teams', json=team_data)
+    assert team_response.status_code == 201
+    team_id = team_response.json['id']
+
+    # Test valid task creation
+    task_data = {
+        'title': 'Test Task API',
+        'description': 'Task created via API',
+        'team_id': team_id
+    }
+    response = client.post('/tasks', json=task_data)
+
+    # Verify response
+    assert response.status_code == 201
+    json_data = response.get_json()
+    assert 'id' in json_data
+    assert json_data['title'] == task_data['title']
+    assert json_data['description'] == task_data['description']
+    assert json_data['team_id'] == task_data['team_id']
+
+    # Check database persistence
+    with client.application.app_context():
+        from backend.app.models import Task
+        created_task = Task.query.filter_by(title=task_data['title']).first()
+        assert created_task is not None
+        assert created_task.description == task_data['description']
+        assert created_task.team_id == task_data['team_id']
+
+    # Test invalid request (missing title)
+    invalid_data = {
+        'description': 'Invalid task data',
+        'team_id': team_id
+    }
+    response = client.post('/tasks', json=invalid_data)
+    assert response.status_code == 400
+    assert 'message' in response.get_json()
+
+    # Test invalid request (missing team_id)
+    invalid_data = {
+        'title': 'Invalid task data',
+        'description': 'Invalid task data',
+    }
+    response = client.post('/tasks', json=invalid_data)
+    assert response.status_code == 400
+    assert 'message' in response.get_json()
