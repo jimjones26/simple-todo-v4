@@ -83,3 +83,21 @@ def create_user(username, email, password, role):
     except Exception:
         db.session.rollback()
         raise ValueError("Database error occurred")
+
+def create_team(name, description):
+    """Creates a new team."""
+    if not name:
+        raise ValueError("Name is required")
+
+    if Team.query.filter_by(name=name).first():
+        raise ValueError("Team name already exists")
+
+    team = Team(name=name, description=description)
+
+    try:
+        db.session.add(team)
+        db.session.commit()
+        return team
+    except Exception:
+        db.session.rollback()
+        raise ValueError("Database error occurred")
