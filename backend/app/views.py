@@ -179,3 +179,36 @@ def get_users():
     } for user in users]
     
     return jsonify(users_data), 200
+
+@bp.route('/teams/<int:team_id>/users', methods=['DELETE'])
+@login_required
+def remove_users_from_team(team_id):
+    """Remove users from a team (admin only)"""
+    # Verify admin permissions
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    # Find target team
+    team = Team.query.get(team_id)
+    if not team:
+        return jsonify({'message': 'Team not found'}), 404
+
+    # Validate request data
+    data = request.get_json()
+    if not data or 'user_ids' not in data:
+        return jsonify({'message': 'User IDs are required'}), 400
+    
+    user_ids = data['user_ids']
+    if not isinstance(user_ids, list):
+        return jsonify({'message': 'User IDs must be a list'}), 400
+
+    # Execute removal
+    try:
+        from backend.app.models import remove_users_from_team
+        remove_users_from_team(team_id=team_id, user_ids=user_ids)
+        return jsonify({'message': 'Users removed successfully'}), 200
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error removing users from team'}), 500

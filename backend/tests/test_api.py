@@ -190,49 +190,50 @@ def create_test_team(client):
     return Team.query.filter_by(name=team_data['name']).first()
 
 def test_remove_users_from_team_api(client):
-     """Integration test for removing users from a team via API"""
-     with client.application.app_context():
-         try:
-             # Create test admin user (required for authentication)
-             admin = create_user(username="admin_remove", email="admin_remove@test.com", password="adminpass", role="admin")
+    """Integration test for removing users from a team via API"""
+    with client.application.app_context():
+        try:
+            # Create test admin user (required for authentication)
+            admin = create_user(username="admin_remove", email="admin_remove@test.com", password="adminpass", role="admin")
 
-             # Create test team and users
-             test_team = create_team(name="API Removal Test Team", description="Team for API removal test")
-             user1 = create_user(username="remove_api_1", email="remove1@api.test", password="pass", role="user")
-             user2 = create_user(username="remove_api_2", email="remove2@api.test", password="pass", role="user")
-             user3 = create_user(username="keep_api_3", email="keep3@api.test", password="pass", role="user")
-             test_team.add_users([user1, user2, user3])
-             db.session.commit()
-             team_id = test_team.id
+            # Create test team and users
+            test_team = create_team(name="API Removal Test Team", description="Team for API removal test")
+            user1 = create_user(username="remove_api_1", email="remove1@api.test", password="pass", role="user")
+            user2 = create_user(username="remove_api_2", email="remove2@api.test", password="pass", role="user")
+            user3 = create_user(username="keep_api_3", email="keep3@api.test", password="pass", role="user")
+            test_team.add_users([user1, user2, user3])
+            db.session.commit()
+            team_id = test_team.id
 
-             # Authenticate as admin (shared auth helper would normally go here)
-             client.post('/login', data={
-                 'username': 'admin_remove',
-                 'password': 'adminpass'
-             })
+            # Authenticate as admin and verify login success
+            login_response = client.post('/login', json={
+                'username': 'admin_remove',
+                'password': 'adminpass'
+            })
+            assert login_response.status_code == 200, f"Login failed: {login_response.get_json()}"
 
-             # Make API request to remove first two users
-             response = client.delete(
-                 f'/teams/{team_id}/users',
-                 json={'user_ids': [user1.id, user2.id]}
-             )
+            # Make API request to remove first two users
+            response = client.delete(
+                f'/teams/{team_id}/users',
+                json={'user_ids': [user1.id, user2.id]}
+            )
 
-             # Verify response
-             assert response.status_code == 200
-             assert response.json['message'] == "Users removed successfully"
+            # Verify response
+            assert response.status_code == 200, f"Remove failed: {response.get_json()}"
+            assert response.json['message'] == "Users removed successfully"
 
-             # Verify database state
-             updated_team = Team.query.get(team_id)
-             assert len(updated_team.users) == 1
-             remaining_usernames = {u.username for u in updated_team.users}
-             assert 'keep_api_3' in remaining_usernames
-             assert 'remove_api_1' not in remaining_usernames
+            # Verify database state
+            updated_team = Team.query.get(team_id)
+            assert len(updated_team.users) == 1
+            remaining_usernames = {u.username for u in updated_team.users}
+            assert 'keep_api_3' in remaining_usernames
+            assert 'remove_api_1' not in remaining_usernames
 
-         finally:
-             # Cleanup database
-             db.session.delete(test_team)
-             db.session.delete(admin)
-             db.session.delete(user1)
-             db.session.delete(user2)
-             db.session.delete(user3)
-             db.session.commit()
+        finally:
+            # Cleanup database
+            db.session.delete(test_team)
+            db.session.delete(admin)
+            db.session.delete(user1)
+            db.session.delete(user2)
+            db.session.delete(user3)
+            db.session.commit()
