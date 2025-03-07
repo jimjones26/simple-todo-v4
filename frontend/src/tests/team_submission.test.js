@@ -1,8 +1,10 @@
-import { render, fireEvent } from '@testing-library/svelte';
+// @ts-nocheck
+import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import TeamForm from '../components/TeamForm.svelte';
 import { post } from '../utils/api.js';
-// Add testing utilities from vitest explicitly
 import { describe, beforeEach, test, expect, vi } from 'vitest';
+
+afterEach(cleanup);
 
 vi.mock('../utils/api.js');
 

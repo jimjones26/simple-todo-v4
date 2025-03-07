@@ -1,6 +1,8 @@
-import { render, fireEvent } from '@testing-library/svelte';
+import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import TeamForm from '../components/TeamForm.svelte';
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, afterEach } from 'vitest';
+
+afterEach(cleanup);
 
 describe('TeamForm Component', () => {
   test('renders form elements', async () => {
