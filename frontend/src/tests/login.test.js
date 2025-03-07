@@ -1,6 +1,11 @@
 import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import Login from '../components/Login.svelte';
 import { describe, it, expect, afterEach } from 'vitest';
+import { post } from '../utils/api';
+import { vi } from 'vitest';
+
+// Mock the API module
+vi.mock('../utils/api.js');
 
 describe('Login.svelte', () => {
   afterEach(() => {
@@ -31,5 +36,24 @@ describe('Login.svelte', () => {
     // Assert errors are in the document, consistent with testing-library style
     expect(usernameError).toBeInTheDocument();
     expect(passwordError).toBeInTheDocument();
+  });
+
+  it('login form shows error on failed submission', async () => {
+    // Mock failed API response
+    post.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ message: 'Invalid credentials' }),
+    });
+
+    // Render and interact with component
+    const { getByLabelText, getByText, findByText } = render(Login);
+    fireEvent.input(getByLabelText('Username:'), { target: { value: 'testuser' }});
+    fireEvent.input(getByLabelText('Password:'), { target: { value: 'wrongpass' }});
+    await fireEvent.click(getByText('Login'));
+
+    // Verify error message
+    const errorMessage = await findByText('Invalid credentials. Please try again.');
+    expect(errorMessage).toBeInTheDocument();
   });
 });
