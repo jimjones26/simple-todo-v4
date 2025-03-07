@@ -1,20 +1,28 @@
 <script>
-  import { post } from '../utils/api';
-  import { auth } from '../stores/authStore';
+  import { post } from "../utils/api";
+  import { auth } from "../stores/authStore";
 
-  let username = '';
-  let password = '';
-  let error = '';
+  let username = "";
+  let password = "";
+  let usernameError = "";
+  let passwordError = "";
+  let error = "";
 
   async function handleSubmit() {
-    error = '';
+    usernameError = username ? "" : "Username is required";
+    passwordError = password ? "" : "Password is required";
+
+    if (usernameError || passwordError) {
+      return;
+    }
+
+    error = "";
     try {
-      const response = await post('/login', { username, password }); // Use POST to /login
-      // Assuming the backend returns user data on successful login
-      auth.set({ isAuthenticated: true, user: response, isLoading: false }); // Update auth store
+      const response = await post("/login", { username, password });
+      auth.set({ isAuthenticated: true, user: response, isLoading: false });
     } catch (err) {
       console.error("Login failed:", err);
-      error = 'Invalid credentials. Please try again.'; // More user-friendly error
+      error = "Invalid credentials. Please try again.";
     }
   }
 </script>
@@ -22,11 +30,17 @@
 <form on:submit|preventDefault={handleSubmit}>
   <div>
     <label for="username">Username:</label>
-    <input id="username" type="text" bind:value={username} required />
+    <input id="username" type="text" bind:value={username} />
+    {#if usernameError}
+      <p class="error">{usernameError}</p>
+    {/if}
   </div>
   <div>
     <label for="password">Password:</label>
-    <input id="password" type="password" bind:value={password} required />
+    <input id="password" type="password" bind:value={password} />
+    {#if passwordError}
+      <p class="error">{passwordError}</p>
+    {/if}
   </div>
   <button type="submit">Login</button>
   {#if error}
