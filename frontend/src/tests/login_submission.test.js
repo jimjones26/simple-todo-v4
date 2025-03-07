@@ -24,6 +24,7 @@ describe('Login Form Submission', () => {
 
   test('test_login_form_submits_success', async () => {
     // Arrange: Mock a successful API response
+    // @ts-ignore
     post.mockResolvedValue({ status: 'success' });
 
     const { getByLabelText, getByText } = render(Login);
@@ -51,10 +52,12 @@ describe('Login Form Submission', () => {
 
   test('test_login_form_submits_failure', async () => {
     // Arrange: Mock a failed API response
+    // @ts-ignore
     post.mockRejectedValue(new Error('Invalid credentials')); // Simulate network or server error
     // OR, to simulate the backend's error response:
     // post.mockResolvedValue({ status: 'error', message: 'Invalid credentials' });
 
+    // @ts-ignore
     const { getByLabelText, getByText, findByText } = render(Login);
 
     // Act: Fill in the form and submit

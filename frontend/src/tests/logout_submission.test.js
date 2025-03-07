@@ -1,7 +1,7 @@
 // frontend/src/tests/test_logout_submission.js
 import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import Dashboard from '../components/Dashboard.svelte';
-import { vi } from 'vitest';
+import { vi, describe, test } from 'vitest';
 import * as api from '../utils/api';
 
 vi.mock('../utils/api');
