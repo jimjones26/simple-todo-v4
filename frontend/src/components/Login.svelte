@@ -18,13 +18,13 @@
 
     error = "";
     try {
-      const response = await post("/login", { username, password });
-      if (!response.ok) {
-        const data = await response.json();
-        error = data.message || "Invalid credentials";
+      const data = await post("/login", { username, password });
+      if (data.id) {
+        auth.set({ isAuthenticated: true, user: data, isLoading: false });
+      } else if (data.message) {
+        error = data.message;
       } else {
-        const user = await response.json();
-        auth.set({ isAuthenticated: true, user, isLoading: false });
+        error = "Invalid credentials";
       }
     } catch (err) {
       console.error("Login failed:", err);
