@@ -1,5 +1,7 @@
 <script>
     import { post } from "../utils/api";
+    import { get } from "../utils/api"; // Import get
+    import { onMount } from 'svelte'; // Import onMount
 
     export let teams = [];
     export let allUsers = [];
@@ -81,27 +83,44 @@
         }
 
         try {
-            const response = await fetch(`/teams/${selectedTeam}/users`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_ids: Array.from(selectedUsersToRemove) }),
+            // Use api.post for DELETE request
+            const data = await post(`/teams/${selectedTeam}/users`, {
+                user_ids: Array.from(selectedUsersToRemove),
+                _method: 'DELETE' // Override method to DELETE
             });
 
-            if (response.ok) {
+            if (data.message === "Users removed successfully") {
                 removeSuccess = "Users removed successfully";
                 selectedUsersToRemove.clear();
                 selectedUsersToRemove = selectedUsersToRemove; // Trigger reactivity
+                // Refresh user list (assuming you have a function to fetch users)
+                // await fetchUsers(); // You'll need to implement fetchUsers
+                // A simpler approach is to reload the page
+                window.location.reload();
             } else {
-                const errorData = await response.json();
-                removeError = errorData.message || "Error removing users from team";
+                removeError = data.message || "Error removing users from team";
             }
         } catch (err) {
             console.error(err);
             removeError = "Error removing users from team";
         }
     };
+
+    // Function to fetch users (example - implement as needed)
+    async function fetchUsers() {
+        try {
+            const users = await get('/users'); // Replace with your actual endpoint
+            allUsers = users;
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            // Handle error as needed
+        }
+    }
+
+    // Load users on component mount
+    onMount(async () => {
+        // await fetchUsers(); // Load users when the component is mounted
+    });
 </script>
 
 <form id="team-users-form" on:submit={handleSubmit}>

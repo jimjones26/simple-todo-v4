@@ -21,8 +21,11 @@ export async function get(endpoint) {
 }
 
 export async function post(endpoint, data) {
+  const method = data?._method || 'POST'; // Use _method to override
+  delete data?._method; // Remove _method from the body
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: 'POST',
+    method: method,
     headers: {
       'Content-Type': 'application/json',
     },
