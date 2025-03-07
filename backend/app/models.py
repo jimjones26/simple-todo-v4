@@ -109,3 +109,31 @@ def create_team(name, description):
     except Exception:
         db.session.rollback()
         raise ValueError("Database error occurred")
+
+def remove_users_from_team(team_id, user_ids):
+    """Removes specified users from a team
+    
+    Args:
+        team_id: ID of the team to modify
+        user_ids: List of user IDs to remove from the team
+    
+    Raises:
+        ValueError: If team isn't found or database error occurs
+    """
+    team = Team.query.get(team_id)
+    if not team:
+        raise ValueError("Team not found")
+    
+    # Get users that exist and are in the team
+    users_to_remove = [user for user in User.query.filter(User.id.in_(user_ids)) 
+                      if user in team.users]
+    
+    # Remove users from the team
+    for user in users_to_remove:
+        team.users.remove(user)
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        raise ValueError("Database error occurred while removing users from team")

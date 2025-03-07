@@ -41,23 +41,32 @@ def test_add_users_to_team(app):
 def test_remove_users_from_team_updates_membership(app):
     """Test that remove_users_from_team correctly removes users from a team"""
     with app.app_context():
-        # Create test team and users
-        test_team = create_team(name="Test Team", description="Team for removal testing")
-        user1 = create_user(username="remove1", email="remove1@test.com", password="pass", role="user")
-        user2 = create_user(username="remove2", email="remove2@test.com", password="pass", role="user")
-        user3 = create_user(username="remain", email="remain@test.com", password="pass", role="user")
-        
-        # Add all users to team
-        test_team.add_users([user1, user2, user3])
-        db.session.commit()
+        # Create test team and users with UNIQUE identifiers
+        test_team = create_team(name="Test Team For Removal", description="Team for removal testing")
+        user1 = create_user(username="remove01", email="remove01@test.com", password="pass", role="user")
+        user2 = create_user(username="remove02",email="remove02@test.com", password="pass", role="user")
+        user3 = create_user(username="remain03", email="remain03@test.com", password="pass", role="user")
 
-        # Remove first two users via function under test
-        from backend.app.models import remove_users_from_team
-        remove_users_from_team(team_id=test_team.id, user_ids=[user1.id, user2.id])
+        # Cleanup code to remove test data
+        try:
+            # Add all users to team
+            test_team.add_users([user1, user2, user3])
+            db.session.commit()
 
-        # Verify updated membership
-        updated_team = Team.query.get(test_team.id)
-        assert len(updated_team.users) == 1
-        assert user3 in updated_team.users
-        assert user1 not in updated_team.users
-        assert user2 not in updated_team.users
+            # Remove first two users via function under test
+            from backend.app.models import remove_users_from_team
+            remove_users_from_team(team_id=test_team.id, user_ids=[user1.id, user2.id])
+
+            # Verify updated membership
+            updated_team = Team.query.get(test_team.id)
+            assert len(updated_team.users) == 1
+            assert user3 in updated_team.users
+            assert user1 not in updated_team.users
+            assert user2 not in updated_team.users
+        finally:
+            # Clean up the database
+            db.session.delete(test_team)
+            db.session.delete(user1)
+            db.session.delete(user2)
+            db.session.delete(user3)
+            db.session.commit()
