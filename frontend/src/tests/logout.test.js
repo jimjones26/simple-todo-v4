@@ -1,11 +1,12 @@
-// frontend/src/tests/test_logout.js
+// frontend/src/tests/logout.test.js
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import Dashboard from '../components/Dashboard.svelte';
 import * as api from '../utils/api';
+import { vi, describe, expect, test } from 'vitest';
 
 // Mock the logout function from api.js
-jest.mock('../utils/api', () => ({
-  logout: jest.fn().mockResolvedValue({ message: 'Logged out successfully' }),
+vi.mock('../utils/api', () => ({
+  logout: vi.fn().mockResolvedValue({ message: 'Logged out successfully' }),
 }));
 
 describe('Dashboard Component', () => {
@@ -18,7 +19,7 @@ describe('Dashboard Component', () => {
   test('should call the logout function when the logout button is clicked', async () => {
     render(Dashboard);
     const logoutButton = await screen.findByRole('button', { name: /logout/i });
-    
+
     // Simulate a click event
     await fireEvent.click(logoutButton);
 
