@@ -42,6 +42,6 @@ describe('TeamForm Submission', () => {
 
     await fireEvent.click(getByRole('button', { name: /create team/i }));
 
-    expect(await findByText('Failed to create team')).toBeInTheDocument();
+    expect(await findByText('Server error')).toBeInTheDocument();
   });
 });
