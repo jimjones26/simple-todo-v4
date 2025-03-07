@@ -4,6 +4,7 @@
   import Login from "./components/Login.svelte";
   import UserForm from "./components/UserForm.svelte";
   import Dashboard from "./components/Dashboard.svelte";
+  import TeamForm from "./components/TeamForm.svelte";
   import { logout } from "./utils/api";
   let logoutError = "";
 
@@ -34,6 +35,7 @@
       <p class="error">{logoutError}</p>
     {/if} -->
     <Dashboard on:logout={handleLogout} user={$auth.user} {logoutError} />
+    <TeamForm />
   {/if}
 
   {#if !$auth.isAuthenticated}
