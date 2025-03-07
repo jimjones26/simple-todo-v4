@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from backend.app import db
-from backend.app.models import User, create_user  # Import from models.py
+from backend.app.models import User, create_user, create_team  # Import from models.py
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -73,6 +73,36 @@ def protected():
         'email': current_user.email,
         'role': current_user.role,
     })
+
+@bp.route('/teams', methods=['POST'])
+@login_required
+def create_team_route():
+    # Verify admin permissions
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+    
+    data = request.get_json()
+    
+    # Validate request data
+    if not data or 'name' not in data:
+        return jsonify({'message': 'Team name is required'}), 400
+    
+    # Extract parameters
+    name = data.get('name')
+    description = data.get('description', None)
+    
+    try:
+        # Create team using model function
+        team = create_team(name=name, description=description)
+        return jsonify({
+            'id': team.id,
+            'name': team.name,
+            'description': team.description
+        }), 201
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        return jsonify({'message': 'Server error creating team'}), 500
 
 @bp.route('/auth/status')
 def auth_status():

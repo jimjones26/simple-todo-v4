@@ -1,5 +1,5 @@
 import pytest
-from backend.app.models import User
+from backend.app.models import User, Team
 from backend.app import db
 
 @pytest.fixture(autouse=True)
@@ -85,3 +85,48 @@ def test_logout_api(client):
     # Verify that the user is no longer authenticated
     auth_status_response = client.get('/auth/status')
     assert auth_status_response.status_code == 401
+
+def test_create_team_api(client):
+    """Test team creation via API creates team in database"""
+    # Create admin user through existing API
+    admin_data = {
+        'username': 'teamadmin',
+        'email': 'teamadmin@example.com',
+        'password': 'adminpass123',
+        'role': 'admin'
+    }
+    create_response = client.post('/users', json=admin_data)
+    assert create_response.status_code == 201
+
+    # Login as admin
+    login_response = client.post('/login', json={
+        'username': 'teamadmin',
+        'password': 'adminpass123'
+    })
+    assert login_response.status_code == 200
+
+    # Test valid team creation
+    team_data = {
+        'name': 'Development Team',
+        'description': 'Software development team'
+    }
+    response = client.post('/teams', json=team_data)
+    
+    # Verify response
+    assert response.status_code == 201
+    json_data = response.get_json()
+    assert 'id' in json_data
+    assert json_data['name'] == team_data['name']
+    assert json_data['description'] == team_data['description']
+
+    # Check database persistence
+    with client.application.app_context():
+        created_team = Team.query.filter_by(name=team_data['name']).first()
+        assert created_team is not None
+        assert created_team.description == team_data['description']
+
+    # Test invalid request (missing name)
+    invalid_data = {'description': 'Invalid team data'}
+    response = client.post('/teams', json=invalid_data)
+    assert response.status_code == 400
+    assert 'message' in response.get_json()
