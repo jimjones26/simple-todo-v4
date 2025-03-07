@@ -1,7 +1,7 @@
 // frontend/src/tests/logout.test.js
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
 import Wrapper from './Wrapper.svelte';
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect, vi, afterEach } from 'vitest';
 
 afterEach(cleanup);
 

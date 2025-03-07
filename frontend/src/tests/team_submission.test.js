@@ -2,7 +2,7 @@
 import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import TeamForm from '../components/TeamForm.svelte';
 import { post } from '../utils/api.js';
-import { describe, beforeEach, test, expect, vi } from 'vitest';
+import { describe, beforeEach, test, expect, vi, afterEach } from 'vitest';
 
 afterEach(cleanup);
 
