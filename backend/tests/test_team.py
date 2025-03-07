@@ -37,3 +37,27 @@ def test_add_users_to_team(app):
         assert len(saved_team.users) == 2
         assert user1 in saved_team.users
         assert user2 in saved_team.users
+
+def test_remove_users_from_team_updates_membership(app):
+    """Test that remove_users_from_team correctly removes users from a team"""
+    with app.app_context():
+        # Create test team and users
+        test_team = create_team(name="Test Team", description="Team for removal testing")
+        user1 = create_user(username="remove1", email="remove1@test.com", password="pass", role="user")
+        user2 = create_user(username="remove2", email="remove2@test.com", password="pass", role="user")
+        user3 = create_user(username="remain", email="remain@test.com", password="pass", role="user")
+        
+        # Add all users to team
+        test_team.add_users([user1, user2, user3])
+        db.session.commit()
+
+        # Remove first two users via function under test
+        from backend.app.models import remove_users_from_team
+        remove_users_from_team(team_id=test_team.id, user_ids=[user1.id, user2.id])
+
+        # Verify updated membership
+        updated_team = Team.query.get(test_team.id)
+        assert len(updated_team.users) == 1
+        assert user3 in updated_team.users
+        assert user1 not in updated_team.users
+        assert user2 not in updated_team.users
