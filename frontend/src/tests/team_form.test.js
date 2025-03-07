@@ -1,10 +1,11 @@
 import { render, fireEvent } from '@testing-library/svelte';
 import TeamForm from '../components/TeamForm.svelte';
+import { describe, test, expect } from 'vitest';
 
 describe('TeamForm Component', () => {
   test('renders form elements', async () => {
     const { getByLabelText, getByRole } = render(TeamForm);
-    
+
     expect(getByLabelText('Team Name:')).toBeInTheDocument();
     expect(getByLabelText('Description (optional):')).toBeInTheDocument();
     expect(getByRole('button', { name: /create team/i })).toBeInTheDocument();
