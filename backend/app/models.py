@@ -137,3 +137,25 @@ def remove_users_from_team(team_id, user_ids):
     except Exception as e:
         db.session.rollback()
         raise ValueError("Database error occurred while removing users from team")
+
+def create_task(title, description, team_id):
+    """Creates a new task."""
+    if not title:
+        raise ValueError("Title is required")
+
+    if not team_id:
+        raise ValueError("Team ID is required")
+
+    team = Team.query.get(team_id)
+    if not team:
+        raise ValueError("Team not found")
+
+    task = Task(title=title, description=description, team_id=team_id)
+
+    try:
+        db.session.add(task)
+        db.session.commit()
+        return task
+    except Exception:
+        db.session.rollback()
+        raise ValueError("Database error occurred")
