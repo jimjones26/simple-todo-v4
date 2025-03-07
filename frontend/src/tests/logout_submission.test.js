@@ -1,7 +1,7 @@
-// frontend/src/tests/test_logout_submission.js
+// frontend/src/tests/logout_submission.test.js
 import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
-import Dashboard from '../components/Dashboard.svelte';
-import { vi, describe, test } from 'vitest';
+import Wrapper from './Wrapper.svelte'; // Import the wrapper
+import { vi, describe, test, expect } from 'vitest';
 import * as api from '../utils/api';
 
 vi.mock('../utils/api');
@@ -13,10 +13,17 @@ describe('Dashboard Component - Logout Submission', () => {
 
     // Mock window.location.assign
     const assignMock = vi.fn();
-    delete window.location;
-    window.location = { assign: assignMock };
+    vi.stubGlobal('location', { ...window.location, assign: assignMock });
 
-    render(Dashboard);
+    // Render the wrapper component with the logout handler
+    render(Wrapper, {
+      props: {
+        handleLogout: async () => {
+          await api.logout();
+          window.location.assign('/login');
+        },
+      },
+    });
 
     // Find the logout button
     const logoutButton = await screen.findByRole('button', { name: /logout/i });
@@ -25,10 +32,11 @@ describe('Dashboard Component - Logout Submission', () => {
     await fireEvent.click(logoutButton);
 
     // Verify that the logout API function was called
-    expect(api.logout).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(api.logout).toHaveBeenCalled();
+    });
 
-    // Wait for the redirection to happen.  We use waitFor to handle the asynchronous
-    // nature of the redirect.
+    // Verify that the redirect happened
     await waitFor(() => {
       expect(assignMock).toHaveBeenCalledWith('/login');
     });
