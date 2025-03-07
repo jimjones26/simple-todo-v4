@@ -66,3 +66,22 @@ def test_get_current_user(client):
     response = client.get('/auth/status')
     assert response.status_code == 200
     assert response.json['username'] == 'testuser'
+
+def test_logout_api(client):
+    """Test logout API"""
+    # First, log in
+    login_data = {
+        'username': 'testuser',
+        'password': 'password'
+    }
+    login_response = client.post('/login', json=login_data)
+    assert login_response.status_code == 200
+
+    # Then, log out
+    logout_response = client.get('/logout')
+    assert logout_response.status_code == 200
+    assert logout_response.json == {'message': 'Logged out successfully'}
+
+    # Verify that the user is no longer authenticated
+    auth_status_response = client.get('/auth/status')
+    assert auth_status_response.status_code == 401
