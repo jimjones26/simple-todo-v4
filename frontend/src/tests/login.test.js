@@ -48,12 +48,12 @@ describe('Login.svelte', () => {
 
     // Render and interact with component
     const { getByLabelText, getByText, findByText } = render(Login);
-    fireEvent.input(getByLabelText('Username:'), { target: { value: 'testuser' }});
-    fireEvent.input(getByLabelText('Password:'), { target: { value: 'wrongpass' }});
+    fireEvent.input(getByLabelText('Username:'), { target: { value: 'testuser' } });
+    fireEvent.input(getByLabelText('Password:'), { target: { value: 'wrongpass' } });
     await fireEvent.click(getByText('Login'));
 
     // Verify error message
-    const errorMessage = await findByText('Invalid credentials. Please try again.');
+    const errorMessage = await findByText('Invalid credentials');
     expect(errorMessage).toBeInTheDocument();
   });
 });
