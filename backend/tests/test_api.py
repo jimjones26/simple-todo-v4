@@ -1,5 +1,5 @@
 import pytest
-from backend.app.models import User, Team
+from backend.app.models import User, Team, create_team
 from backend.app import db
 
 @pytest.fixture(autouse=True)
@@ -130,3 +130,61 @@ def test_create_team_api(client):
     response = client.post('/teams', json=invalid_data)
     assert response.status_code == 400
     assert 'message' in response.get_json()
+
+def test_add_users_to_team_api(client):
+    """Test adding users to a team through API endpoint"""
+    # Create admin user and login
+    admin_data = {
+        'username': 'teamadmin',
+        'email': 'teamadmin@example.com',
+        'password': 'adminpass',
+        'role': 'admin'
+    }
+    client.post('/users', json=admin_data)
+    login_response = client.post('/login', json={'username': 'teamadmin', 'password': 'adminpass'})
+    assert login_response.status_code == 200
+
+    # Create test team and users
+    team = create_test_team(client)
+    user_ids = []
+    for i in range(3):
+        user_data = {
+            'username': f'teamuser{i}',
+            'email': f'user{i}@team.test',
+            'password': 'pass',
+            'role': 'user'
+        }
+        response = client.post('/users', json=user_data)
+        user_ids.append(response.json['id'])
+
+    # Test valid user addition
+    response = client.post(f'/teams/{team.id}/users', json={'user_ids': user_ids})
+    assert response.status_code == 200
+    assert response.json == {'message': f'Added {len(user_ids)} users to team'}
+
+    # Verify database state
+    with client.application.app_context():
+        updated_team = Team.query.get(team.id)
+        assert len(updated_team.users) == 3
+        assert {user.id for user in updated_team.users} == set(user_ids)
+
+    # Test invalid team ID
+    response = client.post('/teams/9999/users', json={'user_ids': user_ids})
+    assert response.status_code == 404
+
+    # Test missing user IDs
+    response = client.post(f'/teams/{team.id}/users', json={})
+    assert response.status_code == 400
+
+    # Test invalid user IDs
+    response = client.post(f'/teams/{team.id}/users', json={'user_ids': [9999]})
+    assert response.status_code == 404
+
+def create_test_team(client):
+    """Helper to create a test team in the database"""
+    team_data = {
+        'name': 'Test Team API',
+        'description': 'Test team for API operations'
+    }
+    response = client.post('/teams', json=team_data)
+    return Team.query.filter_by(name=team_data['name']).first()
