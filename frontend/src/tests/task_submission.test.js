@@ -30,7 +30,7 @@ describe('TaskForm submission', () => {
     expect(post).toHaveBeenCalledWith('/tasks', {
       title: 'Test Task',
       description: 'Test Description',
-      team_id: '1',
+      team_id: 1,
     });
 
     await waitFor(() => {
