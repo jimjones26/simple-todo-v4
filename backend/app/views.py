@@ -212,3 +212,40 @@ def remove_users_from_team(team_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error removing users from team'}), 500
+
+@bp.route('/tasks', methods=['POST'])
+@login_required
+def create_task_route():
+    """Creates a new task."""
+    # Verify admin permissions - only admins can create tasks
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'message': 'No data provided'}), 400
+
+    required_fields = ['title', 'team_id']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'message': f'Missing field: {field}'}), 400
+
+    title = data['title']
+    description = data.get('description', '')  # Description is optional
+    team_id = data['team_id']
+
+    try:
+        from backend.app.models import create_task  # Import here to avoid circular import
+        task = create_task(title=title, description=description, team_id=team_id)
+        return jsonify({
+            'id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'team_id': task.team_id
+        }), 201
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error creating task'}), 500
