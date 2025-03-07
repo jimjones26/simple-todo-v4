@@ -1,4 +1,4 @@
-import { render, fireEvent, cleanup } from '@testing-library/svelte';
+import { render, fireEvent, cleanup, waitFor } from '@testing-library/svelte';
 import TeamForm from '../components/TeamForm.svelte';
 import { describe, test, expect, afterEach } from 'vitest';
 
@@ -14,11 +14,11 @@ describe('TeamForm Component', () => {
   });
 
   test('shows validation error for empty name', async () => {
-    const { getByRole, getByText } = render(TeamForm);
-    const button = getByRole('button', { name: /create team/i });
+    const { container, getByText } = render(TeamForm);
+    const form = container.querySelector('form');
 
-    await fireEvent.click(button);
-    expect(getByText('Team name is required')).toBeInTheDocument();
+    await fireEvent.submit(form);
+    await waitFor(() => expect(getByText('Team name is required')).toBeInTheDocument());
   });
 
   test('enables button with valid input', async () => {
