@@ -147,3 +147,35 @@ def add_users_to_team(team_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error adding users to team'}), 500
+
+@bp.route('/teams', methods=['GET'])
+@login_required
+def get_teams():
+    """Get all teams (admin only)"""
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+    
+    teams = Team.query.all()
+    teams_data = [{
+        'id': team.id,
+        'name': team.name,
+        'description': team.description
+    } for team in teams]
+    
+    return jsonify(teams_data), 200
+
+@bp.route('/users', methods=['GET'])
+@login_required
+def get_users():
+    """Get all users (admin only)"""
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+    
+    users = User.query.all()
+    users_data = [{
+        'id': user.id,
+        'username': user.username,
+        'role': user.role
+    } for user in users]
+    
+    return jsonify(users_data), 200

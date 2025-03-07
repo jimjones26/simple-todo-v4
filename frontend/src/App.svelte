@@ -5,12 +5,25 @@
   import UserForm from "./components/UserForm.svelte";
   import Dashboard from "./components/Dashboard.svelte";
   import TeamForm from "./components/TeamForm.svelte";
-  import { logout } from "./utils/api";
-  let logoutError = "";
+  import { logout, get } from "./utils/api";
+  import TeamUsers from "./components/TeamUsers.svelte";
 
-  // Call checkAuth when the component mounts
+  let logoutError = "";
+  let teams = [];
+  let allUsers = [];
+
   onMount(async () => {
     await checkAuth();
+    if ($auth.isAuthenticated && $auth.user?.role === 'admin') {
+      try {
+        const teamsResponse = await get('/teams');
+        const usersResponse = await get('/users');
+        teams = teamsResponse;
+        allUsers = usersResponse;
+      } catch (error) {
+        console.error('Error fetching ', error);
+      }
+    }
   });
 
   async function handleLogout() {
@@ -29,13 +42,9 @@
   <p>Loading...</p>
 {:else}
   {#if $auth.isAuthenticated}
-    <!-- <p>What's up, {$auth.user.username}!</p>
-    <button on:click={handleLogout}>Logout</button> -->
-    <!-- {#if logoutError}
-      <p class="error">{logoutError}</p>
-    {/if} -->
     <Dashboard on:logout={handleLogout} user={$auth.user} {logoutError} />
     <TeamForm />
+    <TeamUsers {teams} {allUsers} />
   {/if}
 
   {#if !$auth.isAuthenticated}
