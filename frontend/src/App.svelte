@@ -3,6 +3,7 @@
   import { auth, checkAuth } from "./stores/authStore";
   import Login from "./components/Login.svelte";
   import UserForm from "./components/UserForm.svelte";
+  import Dashboard from "./components/Dashboard.svelte";
   import { logout } from "./utils/api";
   let logoutError = "";
 
@@ -27,11 +28,12 @@
   <p>Loading...</p>
 {:else}
   {#if $auth.isAuthenticated}
-    <p>What's up, {$auth.user.username}!</p>
-    <button on:click={handleLogout}>Logout</button>
-    {#if logoutError}
+    <!-- <p>What's up, {$auth.user.username}!</p>
+    <button on:click={handleLogout}>Logout</button> -->
+    <!-- {#if logoutError}
       <p class="error">{logoutError}</p>
-    {/if}
+    {/if} -->
+    <Dashboard on:logout={handleLogout} user={$auth.user} {logoutError} />
   {/if}
 
   {#if !$auth.isAuthenticated}
@@ -41,7 +43,7 @@
 
 <UserForm />
 
-{JSON.stringify({auth: $auth}, null, 2)}
+{JSON.stringify({ auth: $auth }, null, 2)}
 
 <style>
   .error {
