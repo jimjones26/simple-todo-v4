@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from backend.app import db
-from backend.app.models import User, create_user, create_team  # Import from models.py
+from backend.app.models import User, create_user, create_team, Team  # Import from models.py
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -109,3 +109,41 @@ def auth_status():
     if current_user.is_authenticated:
         return jsonify(current_user.get_dict()), 200
     return jsonify({'message': 'Not authenticated'}), 401
+
+@bp.route('/teams/<int:team_id>/users', methods=['POST'])
+@login_required
+def add_users_to_team(team_id):
+    """Add users to a team (admin only)"""
+    # Verify admin permissions
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+    
+    # Find target team
+    team = Team.query.get(team_id)
+    if not team:
+        return jsonify({'message': 'Team not found'}), 404
+
+    # Validate request data
+    data = request.get_json()
+    if not data or 'user_ids' not in data:
+        return jsonify({'message': 'User IDs are required'}), 400
+    
+    user_ids = data['user_ids']
+    if not isinstance(user_ids, list):
+        return jsonify({'message': 'User IDs must be a list'}), 400
+
+    # Verify all users exist
+    users = User.query.filter(User.id.in_(user_ids)).all()
+    if len(users) != len(user_ids):
+        existing_ids = {user.id for user in users}
+        missing_ids = [uid for uid in user_ids if uid not in existing_ids]
+        return jsonify({'message': f'Users not found: {missing_ids}'}), 404
+
+    # Add users to team
+    try:
+        team.add_users(users)
+        db.session.commit()
+        return jsonify({'message': f'Added {len(users)} users to team'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error adding users to team'}), 500
