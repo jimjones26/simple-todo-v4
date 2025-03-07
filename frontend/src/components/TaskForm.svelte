@@ -58,7 +58,7 @@
 
   <div>
     <label for="title">Title:</label>
-    <input type="text" id="title" bind:value={title} />
+    <input type="text" id="title" bind:value={title} disabled={isSubmitting} />
     {#if titleError}
       <p class="error">{titleError}</p>
     {/if}
@@ -66,12 +66,12 @@
 
   <div>
     <label for="description">Description:</label>
-    <textarea id="description" bind:value={description}></textarea>
+    <textarea id="description" bind:value={description} disabled={isSubmitting}></textarea>
   </div>
 
   <div>
     <label for="team">Team:</label>
-    <select id="team" bind:value={team_id}>
+    <select id="team" bind:value={team_id} disabled={isSubmitting}>
       <option value="">Select a team</option>
       {#each teams as team (team.id)}
         <option value={team.id}>{team.name}</option>
