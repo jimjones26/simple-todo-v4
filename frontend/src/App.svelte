@@ -46,7 +46,4 @@
 {JSON.stringify({ auth: $auth }, null, 2)}
 
 <style>
-  .error {
-    color: red;
-  }
 </style>
