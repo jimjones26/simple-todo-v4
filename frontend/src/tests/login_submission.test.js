@@ -1,3 +1,4 @@
+// @ts-nocheck
 // frontend/src/tests/login_submission.test.js
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/svelte';
 import Login from '../components/Login.svelte';
@@ -24,8 +25,11 @@ describe('Login Form Submission', () => {
 
   test('test_login_form_submits_success', async () => {
     // Arrange: Mock a successful API response
-    // @ts-ignore
-    post.mockResolvedValue({ status: 'success' });
+    post.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ username: 'testuser' }),
+    });
 
     const { getByLabelText, getByText } = render(Login);
 
@@ -45,20 +49,17 @@ describe('Login Form Submission', () => {
         password: 'password',
       });
     });
-
-    // Assert: Check if goto was called after successful login
-    //await waitFor(() => expect(goto).toHaveBeenCalledWith('/dashboard')); //Removed as per instructions
   });
 
   test('test_login_form_submits_failure', async () => {
-    // Arrange: Mock a failed API response
-    // @ts-ignore
-    post.mockRejectedValue(new Error('Invalid credentials')); // Simulate network or server error
-    // OR, to simulate the backend's error response:
-    // post.mockResolvedValue({ status: 'error', message: 'Invalid credentials' });
+    // Arrange: Mock a failed API response from the server
+    post.mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ message: 'Invalid credentials' }),
+    });
 
-    // @ts-ignore
-    const { getByLabelText, getByText, findByText } = render(Login);
+    const { getByLabelText, getByText } = render(Login);
 
     // Act: Fill in the form and submit
     const usernameInput = getByLabelText('Username:');
@@ -80,10 +81,9 @@ describe('Login Form Submission', () => {
     // Assert: Check if goto was NOT called
     expect(goto).not.toHaveBeenCalled();
 
-    // Assert: Check if an error message is displayed (you might need to adjust this)
+    // Assert: Check if the error message is displayed
     await waitFor(() => {
-      // Check for a generic error message.  We'll refine this in the implementation.
-      expect(document.body.textContent).toContain('Invalid credentials'); //Very basic check
+      expect(document.body.textContent).toContain('Invalid credentials');
     });
   });
 });
