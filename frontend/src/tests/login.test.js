@@ -1,58 +1,56 @@
+// @ts-nocheck
 import { render, fireEvent, cleanup } from '@testing-library/svelte';
 import Login from '../components/Login.svelte';
-import { describe, it, expect, afterEach } from 'vitest';
-import { post } from '../utils/api';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, afterEach } from 'vitest';
 
 // Mock the API module
-vi.mock('../utils/api.js');
+vi.mock('../utils/api.js', () => {
+  const post = vi.fn();
+  return { post };
+});
 
 describe('Login.svelte', () => {
   afterEach(() => {
-    cleanup(); // Clean up after each test, matching the working test
+    cleanup();
   });
 
   it('renders form with username and password fields and shows validation errors when submitted empty', async () => {
-    // Render the component and get query functions, like the working test
     const { getByLabelText, getByText, findByText } = render(Login);
 
-    // Query form elements, similar to getByLabelText and getByText in the working test
     const usernameInput = getByLabelText('Username:');
     const passwordInput = getByLabelText('Password:');
     const submitButton = getByText('Login');
 
-    // Assert fields and button are rendered, using toBeInTheDocument like the working test implies
     expect(usernameInput).toBeInTheDocument();
     expect(passwordInput).toBeInTheDocument();
     expect(submitButton).toBeInTheDocument();
 
-    // Simulate clicking the submit button without input, mirroring fireEvent usage
     await fireEvent.click(submitButton);
 
-    // Check for validation errors, using findByText for async DOM updates
     const usernameError = await findByText('Username is required');
     const passwordError = await findByText('Password is required');
 
-    // Assert errors are in the document, consistent with testing-library style
     expect(usernameError).toBeInTheDocument();
     expect(passwordError).toBeInTheDocument();
   });
 
   it('login form shows error on failed submission', async () => {
-    // Mock failed API response
+    const { post } = await import('../utils/api.js');
     post.mockResolvedValueOnce({
       ok: false,
       status: 401,
       json: async () => ({ message: 'Invalid credentials' }),
     });
 
-    // Render and interact with component
     const { getByLabelText, getByText, findByText } = render(Login);
-    fireEvent.input(getByLabelText('Username:'), { target: { value: 'testuser' } });
-    fireEvent.input(getByLabelText('Password:'), { target: { value: 'wrongpass' } });
-    await fireEvent.click(getByText('Login'));
+    const usernameInput = getByLabelText('Username:');
+    const passwordInput = getByLabelText('Password:');
+    const submitButton = getByText('Login');
 
-    // Verify error message
+    await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
+    await fireEvent.input(passwordInput, { target: { value: 'wrongpass' } });
+    await fireEvent.click(submitButton);
+
     const errorMessage = await findByText('Invalid credentials');
     expect(errorMessage).toBeInTheDocument();
   });
