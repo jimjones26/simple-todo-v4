@@ -1,21 +1,21 @@
 <script>
-  import { post } from '../utils/api.js';
+  import { post } from "../utils/api.js";
 
   export let teams = [];
 
-  let title = '';
-  let description = '';
-  let team_id = '';
+  let title = "";
+  let description = "";
+  let team_id = "";
 
-  let titleError = '';
-  let teamError = '';
-  let submissionError = '';
+  let titleError = "";
+  let teamError = "";
+  let submissionError = "";
   let submissionSuccess = false;
   let isSubmitting = false;
 
   async function handleSubmit(event) {
     event.preventDefault();
-    submissionError = '';
+    submissionError = "";
     submissionSuccess = false;
 
     if (!validateForm()) {
@@ -26,21 +26,21 @@
 
     try {
       const taskData = { title, description, team_id };
-      const response = await post('/tasks', taskData);
+      const response = await post("/tasks", taskData);
       submissionSuccess = true;
-      title = '';
-      description = '';
-      team_id = '';
+      title = "";
+      description = "";
+      team_id = "";
     } catch (error) {
-      submissionError = error.message || 'An unexpected error occurred.';
+      submissionError = error.message || "An unexpected error occurred.";
     } finally {
       isSubmitting = false;
     }
   }
 
   function validateForm() {
-    titleError = title ? '' : 'Title is required';
-    teamError = team_id ? '' : 'Team is required';
+    titleError = title ? "" : "Title is required";
+    teamError = team_id ? "" : "Team is required";
     return !titleError && !teamError;
   }
 </script>
@@ -66,7 +66,7 @@
 
   <div>
     <label for="description">Description:</label>
-    <textarea id="description" bind:value={description} />
+    <textarea id="description" bind:value={description}></textarea>
   </div>
 
   <div>
@@ -83,7 +83,7 @@
   </div>
 
   <button type="submit" disabled={isSubmitting}>
-    {isSubmitting ? 'Creating...' : 'Create Task'}
+    {isSubmitting ? "Creating..." : "Create Task"}
   </button>
 </form>
 
