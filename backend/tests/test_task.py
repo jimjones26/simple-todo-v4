@@ -126,3 +126,36 @@ def test_get_user_tasks(app):
         user2_tasks = get_user_tasks(user2.id)
         assert len(user2_tasks) == 1
         assert task3 in user2_tasks
+
+def test_fetch_team_tasks(app):
+    """Test fetching tasks for a specific team."""
+    with app.app_context():
+        # Create a team
+        team1 = create_team(name="Team 1", description="Test Team 1")
+        team2 = create_team(name="Team 2", description="Test Team 2")
+
+        # Create tasks for team 1
+        task1 = create_task(title="Task 1", description="Task 1 for Team 1", team_id=team1.id)
+        task2 = create_task(title="Task 2", description="Task 2 for Team 1", team_id=team1.id)
+
+        # Create a task for team 2
+        task3 = create_task(title="Task 3", description="Task 3 for Team 2", team_id=team2.id)
+
+        # Fetch tasks for team 1 (This will fail until fetch_team_tasks is implemented)
+        from backend.app.models import fetch_team_tasks  # Import when needed
+        team1_tasks = fetch_team_tasks(team1.id)
+
+        # Assert that the correct tasks are returned for team 1
+        assert len(team1_tasks) == 2
+        assert task1 in team1_tasks
+        assert task2 in team1_tasks
+        assert task3 not in team1_tasks
+
+        # Fetch tasks for team 2
+        team2_tasks = fetch_team_tasks(team2.id)
+        assert len(team2_tasks) == 1
+        assert task3 in team2_tasks
+
+        # Test case: Team not found (should return empty list)
+        team_not_found_tasks = fetch_team_tasks(9999)
+        assert len(team_not_found_tasks) == 0
