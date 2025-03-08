@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, cleanup, waitFor } from '@testing-library/svelte';
 import UserTasks from '../components/UserTasks.svelte';
 import { get } from '../utils/api';
@@ -15,7 +16,7 @@ describe('UserTasks.svelte - Fetching', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
-    auth.set({isAuthenticated: false, user: null, isLoading: false});
+    auth.set({ isAuthenticated: false, user: null, isLoading: false });
   });
 
   it('fetches and displays tasks correctly', async () => {
@@ -66,29 +67,29 @@ describe('UserTasks.svelte - Fetching', () => {
     expect(queryByText('No tasks assigned.')).not.toBeInTheDocument();
   });
 
-    it('displays "No tasks assigned." when the API returns an empty array', async () => {
-        get.mockResolvedValue([]); // Mock an empty task list
+  it('displays "No tasks assigned." when the API returns an empty array', async () => {
+    get.mockResolvedValue([]); // Mock an empty task list
 
-        const { getByText, queryByText, findByText } = render(UserTasks);
+    const { getByText, queryByText, findByText } = render(UserTasks);
 
-        expect(getByText('Loading tasks...')).toBeInTheDocument();
+    expect(getByText('Loading tasks...')).toBeInTheDocument();
 
-        const noTasksMessage = await findByText('No tasks assigned.');
-        expect(noTasksMessage).toBeInTheDocument();
-        expect(queryByText('Loading tasks...')).not.toBeInTheDocument();
-    });
+    const noTasksMessage = await findByText('No tasks assigned.');
+    expect(noTasksMessage).toBeInTheDocument();
+    expect(queryByText('Loading tasks...')).not.toBeInTheDocument();
+  });
 
-    it('handles user not logged in', async () => {
-        // Simulate user not being logged in
-        auth.set({ isAuthenticated: false, user: null, isLoading: false });
+  it('handles user not logged in', async () => {
+    // Simulate user not being logged in
+    auth.set({ isAuthenticated: false, user: null, isLoading: false });
 
-        const { getByText, queryByText } = render(UserTasks);
+    const { getByText, queryByText } = render(UserTasks);
 
-        // Check for error message
-        expect(getByText('Error: User not logged in.')).toBeInTheDocument();
+    // Check for error message
+    expect(getByText('Error: User not logged in.')).toBeInTheDocument();
 
-        // Loading message and no tasks message should not be present
-        expect(queryByText('Loading tasks...')).not.toBeInTheDocument();
-        expect(queryByText('No tasks assigned.')).not.toBeInTheDocument();
-    });
+    // Loading message and no tasks message should not be present
+    expect(queryByText('Loading tasks...')).not.toBeInTheDocument();
+    expect(queryByText('No tasks assigned.')).not.toBeInTheDocument();
+  });
 });
