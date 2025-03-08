@@ -33,7 +33,7 @@ def test_assign_task_to_user(app):
         task = create_task(title="Test Task", description="Test task", team_id=team.id)
 
         # Assign the task to the user
-        task.assignee_id = user.id
+        task.assign_user(user)
         db.session.commit()
 
         # Verify the task's assignee
