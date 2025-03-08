@@ -3,11 +3,13 @@ from backend.app import create_app, db
 from backend.tests.config import TestConfig
 from backend.app.models import User
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def app():
-    """Create and configure a new app instance for each test session."""
+    """Create and configure a new app instance for each test function."""
     app = create_app()
     app.config.from_object(TestConfig)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     with app.app_context():
         db.create_all()
