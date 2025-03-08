@@ -1,11 +1,17 @@
-import { render, screen, waitFor } from '@testing-library/svelte';
+// @ts-nocheck
+import { render, screen, waitFor, cleanup } from '@testing-library/svelte';
 import TeamTasks from '../components/TeamTasks.svelte';
 import { get } from '../utils/api';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, afterEach } from 'vitest';
 
 vi.mock('../utils/api');
 
 describe('TeamTasks Component - Task Fetching', () => {
+  // Clean up after each test to ensure DOM isolation
+  afterEach(() => {
+    cleanup();
+  });
+
   it('fetches and displays tasks on mount', async () => {
     // Arrange: Mock the API response
     const mockTeamId = 1;
@@ -21,7 +27,7 @@ describe('TeamTasks Component - Task Fetching', () => {
     // Assert: Check that the loading message is initially displayed
     expect(screen.getByText('Loading tasks...')).toBeInTheDocument();
 
-    // Assert: Wait for the API call to complete and the tasks to be displayed
+    // Assert: Wait for the API call to complete and tasks to be displayed
     await waitFor(() => {
       expect(screen.getByText('Task 1')).toBeInTheDocument();
       expect(screen.getByText('Description 1')).toBeInTheDocument();
@@ -29,32 +35,32 @@ describe('TeamTasks Component - Task Fetching', () => {
       expect(screen.getByText('Description 2')).toBeInTheDocument();
     });
 
-    // Assert: Verify that the API was called with the correct endpoint
+    // Assert: Verify the API was called with the correct endpoint
     expect(get).toHaveBeenCalledWith(`/teams/${mockTeamId}/tasks`);
   });
 
-    it('displays an error message if fetching tasks fails', async () => {
-        // Arrange
-        const mockTeamId = 1;
-        get.mockRejectedValue(new Error('Failed to fetch tasks'));
+  it('displays an error message if fetching tasks fails', async () => {
+    // Arrange
+    const mockTeamId = 1;
+    get.mockRejectedValue(new Error('Failed to fetch tasks'));
 
-        // Act
-        render(TeamTasks, { props: { teamId: mockTeamId } });
+    // Act
+    render(TeamTasks, { props: { teamId: mockTeamId } });
 
-        // Assert: Check for error message
-        await waitFor(() => {
-            expect(screen.getByText('Error: Failed to fetch tasks.')).toBeInTheDocument();
-        });
+    // Assert: Check for error message (corrected text without period)
+    await waitFor(() => {
+      expect(screen.getByText('Error: Failed to fetch tasks')).toBeInTheDocument();
     });
+  });
 
-    it('displays a message if there are no tasks', async () => {
-        const mockTeamId = 1;
-        get.mockResolvedValue([]);
+  it('displays a message if there are no tasks', async () => {
+    const mockTeamId = 1;
+    get.mockResolvedValue([]);
 
-        render(TeamTasks, {props: {teamId: mockTeamId}});
+    render(TeamTasks, { props: { teamId: mockTeamId } });
 
-        await waitFor(() => {
-            expect(screen.getByText('No tasks for this team.')).toBeInTheDocument();
-        });
+    await waitFor(() => {
+      expect(screen.getByText('No tasks for this team.')).toBeInTheDocument();
     });
+  });
 });
