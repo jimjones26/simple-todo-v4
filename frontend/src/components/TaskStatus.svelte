@@ -1,11 +1,31 @@
 <script>
-    let selectedStatus = "not started"; // Default status
+    import { patch } from "../utils/api.js";
 
-    function handleSubmit() {
-        // Implementation for form submission will go here in a later step
-        console.log("Selected status:", selectedStatus); // Placeholder action
+    export let taskId;
+    let selectedStatus = "not started"; // Default status
+    let submissionError = null;
+    let submissionSuccess = false;
+
+    async function handleSubmit() {
+        submissionError = null;
+        submissionSuccess = false;
+
+        try {
+            const response = await patch(`/tasks/${taskId}/status`, { status: selectedStatus });
+            if (response.message === 'Task status updated') {
+                submissionSuccess = true;
+            } else {
+                submissionError = "Failed to update status";
+            }
+        } catch (error) {
+            submissionError = error.message || "An unexpected error occurred.";
+        }
     }
 </script>
+
+{#if submissionSuccess}
+    <p style="color: green;">Status updated</p>
+{/if}
 
 <form on:submit|preventDefault={handleSubmit}>
     <label for="status">Status:</label>
@@ -17,6 +37,10 @@
 
     <button type="submit">Update Status</button>
 </form>
+
+{#if submissionError}
+    <p style="color: red;">{submissionError}</p>
+{/if}
 
 <style>
     form {
