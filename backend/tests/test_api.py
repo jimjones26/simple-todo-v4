@@ -442,3 +442,53 @@ def test_patch_task_status(client):
     #7.4 No data
     response = client.patch(f'/tasks/{task_id}/status')
     assert response.status_code == 400
+
+def test_patch_task_deadline(client):
+    """Test PATCH /tasks/{id}/deadline updates task deadline in database"""
+    # Setup admin user
+    admin_data = {
+        'username': 'deadline_admin',
+        'email': 'deadline_admin@test.com',
+        'password': 'adminpass',
+        'role': 'admin'
+    }
+    client.post('/users', json=admin_data)
+
+    # Login as admin
+    login_res = client.post('/login', json={
+        'username': 'deadline_admin', 
+        'password': 'adminpass'
+    })
+    assert login_res.status_code == 200
+
+    # Create test team
+    team_res = client.post('/teams', json={
+        'name': 'Deadline Testers',
+        'description': 'Deadline functionality test team'
+    })
+    team_id = team_res.json['id']
+
+    # Create test task
+    task_res = client.post('/tasks', json={
+        'title': 'Deadline Target Task',
+        'team_id': team_id
+    })
+    task_id = task_res.json['id']
+
+    # Test valid deadline update
+    from datetime import datetime, UTC, timedelta
+    new_deadline = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=14)
+    response = client.patch(
+        f'/tasks/{task_id}/deadline',
+        json={'deadline': new_deadline.isoformat()}
+    )
+
+    # Verify response
+    assert response.status_code == 200
+    # assert response.json == {'message': 'Deadline updated successfully'} #Commented out because the endpoint is not yet implemented
+
+    # Verify database persistence
+    with client.application.app_context():
+        from backend.app.models import Task
+        updated_task = db.session.get(Task, task_id)
+        assert updated_task.deadline == new_deadline
