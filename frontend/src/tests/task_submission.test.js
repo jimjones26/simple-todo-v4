@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/svelte';
 import TaskForm from '../components/TaskForm.svelte';
 import { post } from '../utils/api.js';
