@@ -540,3 +540,48 @@ def test_get_user_tasks_api(client):
         # Test case: User not found
         response_not_found = client.get('/users/9999/tasks')
         assert response_not_found.status_code == 404  # Expecting 404 Not Found
+
+def test_get_team_tasks(client):
+    """Test retrieving tasks for a specific team via the API."""
+    with client.application.app_context():
+        # Create an admin user and log in
+        admin = create_user(username="admin_team_tasks", email="admin_team_tasks@test.com", password="adminpass", role="admin")
+        login_response = client.post('/login', json={'username': 'admin_team_tasks', 'password': 'adminpass'})
+        assert login_response.status_code == 200
+
+        # Create a team
+        team1 = create_team(name="Test Team API 1", description="Team for API testing")
+        team2 = create_team(name="Test Team API 2", description="Another Team for API testing")
+
+        # Create tasks for team 1
+        task1 = create_task(title="Task 1 API", description="Task 1 for Test Team API 1", team_id=team1.id)
+        task2 = create_task(title="Task 2 API", description="Task 2 for Test Team API 1", team_id=team1.id)
+
+        # Create a task for team 2
+        task3 = create_task(title="Task 3 API", description="Task 3 for Test Team API 2", team_id=team2.id)
+
+        db.session.commit()
+
+        # Fetch tasks for team1 via API (This will fail until the endpoint is implemented)
+        response = client.get(f'/teams/{team1.id}/tasks')
+
+        # Assertions (expecting failure until endpoint implementation)
+        assert response.status_code == 200  # Expecting 200 OK once implemented
+        data = response.get_json()
+        assert len(data) == 2
+        assert any(task['id'] == task1.id for task in data)
+        assert any(task['title'] == task1.title for task in data)
+        assert any(task['description'] == task1.description for task in data)
+        assert any(task['id'] == task2.id for task in data)
+        assert not any(task['id'] == task3.id for task in data)
+
+        # Fetch tasks for team2 via API
+        response2 = client.get(f'/teams/{team2.id}/tasks')
+        assert response2.status_code == 200
+        data2 = response2.get_json()
+        assert len(data2) == 1
+        assert any(task['id'] == task3.id for task in data2)
+
+        # Test case: Team not found
+        response_not_found = client.get('/teams/9999/tasks')
+        assert response_not_found.status_code == 404  # Expecting 404 Not Found
