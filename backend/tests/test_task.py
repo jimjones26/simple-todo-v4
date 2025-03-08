@@ -8,7 +8,6 @@ def test_create_task_success(app):
 
     team = create_team(name="Test Team", description="Test team")
     with app.app_context():
-
         task = create_task(
             title="Test Task",
             description="This is a test task",
@@ -82,8 +81,8 @@ def test_update_task_deadline(app):
             team_id=team.id,
         )
 
-        # New deadline (1 week from now)
-        new_deadline = dt.datetime.utcnow() + dt.timedelta(days=7)
+        # New deadline (1 week from now), avoiding deprecated utcnow()
+        new_deadline = dt.datetime.now(dt.UTC).replace(tzinfo=None) + dt.timedelta(days=7)
 
         # Update the deadline using the function
         update_task_deadline(task.id, new_deadline)
