@@ -1,30 +1,32 @@
 <script>
-  import { patch } from '../utils/api.js';
+  import { patch } from "../utils/api.js";
 
   export let task;
   export let users;
 
-  let selectedUser = '';
-  let errorMessage = '';
-  let successMessage = '';
+  let selectedUser = "";
+  let errorMessage = "";
+  let successMessage = "";
   let isSubmitting = false;
 
   async function handleAssign() {
-    errorMessage = '';
-    successMessage = '';
+    errorMessage = "";
+    successMessage = "";
 
     if (!selectedUser) {
-      errorMessage = 'Please select a user.';
+      errorMessage = "Please select a user.";
       return;
     }
 
     isSubmitting = true;
     try {
-      const response = await patch(`/tasks/${task.id}/assign`, { user_id: selectedUser });
+      const response = await patch(`/tasks/${task.id}/assign`, {
+        user_id: selectedUser,
+      });
 
-      successMessage = response.message || 'User assigned successfully!';
+      successMessage = response.message || "User assigned successfully!";
     } catch (error) {
-      errorMessage = error.message || 'An unexpected error occurred.';
+      errorMessage = error.message || "An unexpected error occurred.";
     } finally {
       isSubmitting = false;
     }
@@ -50,5 +52,5 @@
 </div>
 
 <button on:click={handleAssign} disabled={isSubmitting}>
-  {isSubmitting ? 'Assigning...' : 'Assign'}
+  {isSubmitting ? "Assigning..." : "Assign"}
 </button>

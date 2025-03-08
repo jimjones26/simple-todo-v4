@@ -30,7 +30,7 @@ describe('TaskAssign submission', () => {
 
     // Check if the patch function was called with the correct arguments
     expect(patch).toHaveBeenCalledTimes(1);
-    expect(patch).toHaveBeenCalledWith(`/tasks/${task.id}/assign`, { user_id: '1' });
+    expect(patch).toHaveBeenCalledWith(`/tasks/${task.id}/assign`, { user_id: 1 });
 
     // Check if the success message is displayed
     await waitFor(() => {
@@ -50,7 +50,7 @@ describe('TaskAssign submission', () => {
     const assignButton = screen.getByText('Assign');
 
     // Select a user
-    await fireEvent.change(selectElement, { target: { value: '1' } });
+    await fireEvent.change(selectElement, { target: { value: 1 } });
 
     // Click the assign button
     await fireEvent.click(assignButton);
