@@ -359,3 +359,80 @@ def test_assign_user_to_task_api(client):
     response = client.patch(f'/tasks/{task_id}/assign', json={'user_id': user_id})
     assert response.status_code == 200
     assert response.json['message'] == 'Task assigned successfully'
+
+def test_patch_task_status(client):
+    """Test updating a task's status via API"""
+    # 1. Create admin user and login
+    admin_data = {
+        'username': 'statusadmin',
+        'email': 'statusadmin@example.com',
+        'password': 'adminpass123',
+        'role': 'admin'
+    }
+    client.post('/users', json=admin_data)
+    login_response = client.post('/login', json={
+        'username': 'statusadmin',
+        'password': 'adminpass123'
+    })
+    assert login_response.status_code == 200
+
+    # 2. Create a team
+    team_data = {
+        'name': 'Status Team',
+        'description': 'Team for status update test'
+    }
+    team_response = client.post('/teams', json=team_data)
+    assert team_response.status_code == 201
+    team_id = team_response.json['id']
+
+    # 3. Create a task
+    task_data = {
+        'title': 'Status Task API',
+        'description': 'Task for status update test',
+        'team_id': team_id
+    }
+    task_response = client.post('/tasks', json=task_data)
+    assert task_response.status_code == 201
+    task_id = task_response.json['id']
+
+    # 4. Send PATCH request with new status
+    new_status = 'in progress'
+    patch_data = {'status': new_status}
+    response = client.patch(f'/tasks/{task_id}/status', json=patch_data)
+
+    # 5. Assert response
+    assert response.status_code == 200
+    assert response.json == {'message': 'Task status updated'}
+
+    # 6. Assert database update
+    with client.application.app_context():
+        from backend.app.models import Task
+        updated_task = Task.query.get(task_id)
+        assert updated_task.status == new_status
+
+    # 7. Negative test cases
+    # 7.1 Non-admin user
+    client.get('/logout')  # Log out admin
+    user_data = {
+        'username': 'statususer',
+        'email': 'statususer@example.com',
+        'password': 'userpass123',
+        'role': 'user'
+    }
+    client.post('/users', json=user_data)
+    client.post('/login', json={'username': 'statususer', 'password': 'userpass123'})
+    response = client.patch(f'/tasks/{task_id}/status', json=patch_data)
+    assert response.status_code == 403  # Forbidden
+
+    # 7.2 Invalid task ID
+    client.post('/login', json={'username': 'statusadmin', 'password': 'adminpass123'}) # Log in as admin again
+    response = client.patch('/tasks/9999/status', json=patch_data)
+    assert response.status_code == 404  # Not Found
+
+    # 7.3 Missing status
+    response = client.patch(f'/tasks/{task_id}/status', json={})
+    assert response.status_code == 400  # Bad Request
+
+    #7.4 No data
+    response = client.patch(f'/tasks/{task_id}/status')
+    assert response.status_code == 400
