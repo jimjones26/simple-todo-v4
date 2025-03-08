@@ -64,6 +64,10 @@ class Task(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
     assignee_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    def assign_user(self, user):
+        """Assign a user to this task."""
+        self.assignee = user
+
     def __repr__(self):
         return f'<Task {self.title}>'
 
