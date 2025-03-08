@@ -1,5 +1,5 @@
 import pytest
-from backend.app.models import User, Team, create_team, create_user
+from backend.app.models import User, Team, create_team, create_user, Task, create_task
 from backend.app import db
 
 @pytest.fixture(autouse=True)
@@ -492,3 +492,51 @@ def test_patch_task_deadline(client):
         from backend.app.models import Task
         updated_task = db.session.get(Task, task_id)
         assert updated_task.deadline == new_deadline
+
+def test_get_user_tasks_api(client):
+    """Test retrieving tasks for a specific user via the API."""
+    with client.application.app_context():
+        # Create an admin user and log in
+        admin = create_user(username="admin_tasks", email="admin_tasks@test.com", password="adminpass", role="admin")
+        login_response = client.post('/login', json={'username': 'admin_tasks', 'password': 'adminpass'})
+        assert login_response.status_code == 200
+
+        # Create a team
+        team = create_team(name="Test Team API", description="Team for API testing")
+
+        # Create a user
+        user1 = create_user(username="Test User API", email="testapi@example.com", password="password", role="user")
+        user2 = create_user(username="Test User API 2", email="testapi2@example.com", password="password", role="user")
+
+        # Create tasks
+        task1 = create_task(title="Task 1 API", description="Task 1 for Test User API", team_id=team.id)
+        task2 = create_task(title="Task 2 API", description="Task 2 for Test User API", team_id=team.id)
+        task3 = create_task(title="Task 3 API", description="Task 3 for Test User API 2", team_id=team.id)
+
+        # Assign tasks
+        task1.assign_user(user1)
+        task2.assign_user(user1)
+        task3.assign_user(user2)
+        db.session.commit()
+
+        # Fetch tasks for user1 via API (This will fail until the endpoint is implemented)
+        response = client.get(f'/users/{user1.id}/tasks')
+
+        # Assertions (expecting failure until endpoint implementation)
+        assert response.status_code == 200  # Expecting 200 OK once implemented
+        data = response.get_json()
+        assert len(data) == 2
+        assert any(task['id'] == task1.id for task in data)
+        assert any(task['id'] == task2.id for task in data)
+        assert not any(task['id'] == task3.id for task in data)
+
+        # Fetch tasks for user2 via API
+        response2 = client.get(f'/users/{user2.id}/tasks')
+        assert response2.status_code == 200
+        data2 = response2.get_json()
+        assert len(data2) == 1
+        assert any(task['id'] == task3.id for task in data2)
+
+        # Test case: User not found
+        response_not_found = client.get('/users/9999/tasks')
+        assert response_not_found.status_code == 404  # Expecting 404 Not Found
