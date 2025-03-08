@@ -56,10 +56,9 @@ def test_update_task_status(app):
             team_id=team.id,
         )
 
-        # Update the task's status
+        # Update the task's status using the new method
         new_status = "in progress"
-        task.status = new_status  # Update will happen in the next step, this is prep
-        # db.session.commit()  # The update method will do this, this is prep
+        task.update_status(new_status)  # Use the method we created
 
         # Verify the in-memory object's status
         assert task.status == new_status

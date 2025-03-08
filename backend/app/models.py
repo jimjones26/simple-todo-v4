@@ -71,6 +71,11 @@ class Task(db.Model):
     def __repr__(self):
         return f'<Task {self.title}>'
 
+    def update_status(self, new_status):
+        """Updates the status of the task and commits to the database."""
+        self.status = new_status
+        db.session.commit()
+
 def create_user(username, email, password, role):
     """Creates a new user with validation."""
     if not username or not email or not password or not role:
