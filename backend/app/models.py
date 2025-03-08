@@ -198,3 +198,17 @@ def update_task_deadline(task_id, new_deadline):
     db.session.commit()
     
     return task
+
+def get_user_tasks(user_id):
+    """Fetches all tasks assigned to a specific user.
+
+    Args:
+        user_id: The ID of the user.
+
+    Returns:
+        A list of Task objects assigned to the user.
+    """
+    user = db.session.get(User, user_id)
+    if not user:
+        return []  # Return empty list if user not found
+    return Task.query.filter_by(assignee_id=user_id).all()
