@@ -1,11 +1,15 @@
-import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
+// @ts-nocheck
+import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/svelte';
 import TaskStatus from '../components/TaskStatus.svelte';
 import { patch } from '../utils/api.js';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
 vi.mock('../utils/api.js');
 
 describe('TaskStatus Submission', () => {
+  // Add this to clean up after each test
+  afterEach(cleanup);
+
   it('status_form.test_submits', async () => {
     // Arrange
     const taskId = 1;
