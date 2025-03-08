@@ -35,6 +35,18 @@ export async function post(endpoint, data) {
   return handleResponse(response);
 }
 
+export async function patch(endpoint, data) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+  return handleResponse(response);
+}
+
 // Add a logout function
 export async function logout() {
     return get('/logout');
