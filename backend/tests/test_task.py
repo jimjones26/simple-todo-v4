@@ -66,3 +66,28 @@ def test_update_task_status(app):
         # Verify the database record's status
         retrieved_task = db.session.get(Task, task.id)
         assert retrieved_task.status == new_status
+
+def test_update_task_deadline(app):
+    """Test updating a task's deadline saves the change to the database."""
+    with app.app_context():
+        from backend.app.models import create_team, create_task, update_task_deadline
+        from datetime import datetime
+        import datetime as dt
+
+        # Create a team and a task
+        team = create_team(name="Test Team", description="Test team")
+        task = create_task(
+            title="Test Task",
+            description="This is a test task",
+            team_id=team.id,
+        )
+
+        # New deadline (1 week from now)
+        new_deadline = dt.datetime.utcnow() + dt.timedelta(days=7)
+
+        # Update the deadline using the function
+        update_task_deadline(task.id, new_deadline)
+
+        # Verify the database record's deadline
+        retrieved_task = db.session.get(Task, task.id)
+        assert retrieved_task.deadline == new_deadline
