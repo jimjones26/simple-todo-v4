@@ -302,6 +302,8 @@ def update_task_status(task_id):
         return jsonify({'message': 'Task not found'}), 404
 
     # Get request data
+    if not request.is_json:  # Check for JSON content type
+        return jsonify({'message': 'Request must be JSON'}), 400
     data = request.get_json()
     if not data or 'status' not in data:
         return jsonify({'message': 'Status is required'}), 400
