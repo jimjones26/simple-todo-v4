@@ -1,4 +1,6 @@
 <script>
+  import { patch } from '../utils/api.js';
+
   export let task;
   export let users;
 
@@ -18,22 +20,9 @@
 
     isSubmitting = true;
     try {
-      const response = await fetch(`http://127.0.0.1:5001/tasks/${task.id}/assign`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user_id: selectedUser }),
-        credentials: 'include',
-      });
+      const response = await patch(`/tasks/${task.id}/assign`, { user_id: selectedUser });
 
-      if (!response.ok) {
-        const errorBody = await response.json();
-        errorMessage = errorBody.message || 'Failed to assign user.';
-        return;
-      }
-
-      successMessage = 'User assigned successfully!';
+      successMessage = response.message || 'User assigned successfully!';
     } catch (error) {
       errorMessage = error.message || 'An unexpected error occurred.';
     } finally {
