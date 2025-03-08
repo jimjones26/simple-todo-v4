@@ -212,3 +212,18 @@ def get_user_tasks(user_id):
     if not user:
         return []  # Return empty list if user not found
     return Task.query.filter_by(assignee_id=user_id).all()
+
+def fetch_team_tasks(team_id):
+    """Fetches all tasks associated with a specific team.
+
+    Args:
+        team_id: The ID of the team.
+
+    Returns:
+        A list of Task objects associated with the team.  Returns an empty list
+        if the team is not found or has no tasks.
+    """
+    team = db.session.get(Team, team_id)
+    if not team:
+        return []  # Return empty list if team not found
+    return Task.query.filter_by(team_id=team_id).all()
