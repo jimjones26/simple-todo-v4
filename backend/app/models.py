@@ -168,3 +168,33 @@ def create_task(title, description, team_id):
     except Exception:
         db.session.rollback()
         raise ValueError("Database error occurred")
+
+def update_task_deadline(task_id, new_deadline):
+    """Updates the deadline of a specified task in the database.
+    
+    Args:
+        task_id: ID of the task to update
+        new_deadline: datetime object for the new deadline
+        
+    Returns:
+        The updated Task object
+        
+    Raises:
+        ValueError: For invalid deadlines or non-existent tasks
+    """
+    import datetime  # For type checking
+    
+    # Validate deadline type
+    if not isinstance(new_deadline, datetime.datetime):
+        raise ValueError("Deadline must be a valid datetime object")
+    
+    # Get the task
+    task = db.session.get(Task, task_id)
+    if not task:
+        raise ValueError("Task not found")
+    
+    # Update and commit
+    task.deadline = new_deadline
+    db.session.commit()
+    
+    return task
