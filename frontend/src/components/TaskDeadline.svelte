@@ -1,26 +1,27 @@
 <script>
-  import { patch } from "../utils/api.js";  // Add this import
+  import { patch } from "../utils/api.js"; // Add this import
 
   export let tasks = [];
 
-  let task_id = '';
-  let deadline = '';
-  let submissionError = '';
+  let task_id = "";
+  let deadline = "";
+  let submissionError = "";
   let submissionSuccess = false;
   let isSubmitting = false;
 
-  async function handleSubmit(event) {  // Make async
+  async function handleSubmit(event) {
+    // Make async
     event.preventDefault();
-    submissionError = '';
+    submissionError = "";
     submissionSuccess = false;
 
     // Validation
     if (!task_id) {
-      submissionError = 'Please select a task';
+      submissionError = "Please select a task";
       return;
     }
     if (!deadline) {
-      submissionError = 'Please select a deadline';
+      submissionError = "Please select a deadline";
       return;
     }
 
@@ -29,25 +30,25 @@
     try {
       // Format deadline for API
       const isoDeadline = new Date(deadline).toISOString();
-      
+
       // Call API endpoint
       await patch(`/tasks/${task_id}/deadline`, {
-        deadline: isoDeadline
+        deadline: isoDeadline,
       });
 
       // Reset form on success
-      task_id = '';
-      deadline = '';
+      task_id = "";
+      deadline = "";
       submissionSuccess = true;
     } catch (error) {
-      submissionError = error.message || 'Failed to update deadline';
+      submissionError = error.message || "Failed to update deadline";
     } finally {
       isSubmitting = false;
     }
   }
 </script>
 
-<form on:submit|preventDefault={handleSubmit}>
+<form on:submit|preventDefault={handleSubmit} aria-labelledby="form-title">
   <h2>Set Task Deadline</h2>
 
   {#if submissionSuccess}
@@ -70,9 +71,9 @@
 
   <div>
     <label for="deadline">Deadline:</label>
-    <input 
-      type="datetime-local" 
-      id="deadline" 
+    <input
+      type="datetime-local"
+      id="deadline"
       bind:value={deadline}
       disabled={isSubmitting}
     />
@@ -99,14 +100,15 @@
     margin-bottom: 5px;
     font-weight: bold;
   }
-  select, input[type="datetime-local"] {
+  select,
+  input[type="datetime-local"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
   button {
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -122,7 +124,7 @@
     margin-top: 10px;
   }
   .success {
-    color: #00C851;
+    color: #00c851;
     margin-top: 10px;
   }
 </style>
