@@ -372,3 +372,24 @@ def get_user_tasks_route(user_id):
     } for task in tasks]
 
     return jsonify(tasks_data), 200
+
+@bp.route('/teams/<int:team_id>/tasks', methods=['GET'])
+@login_required
+def get_team_tasks_route(team_id):
+    """Retrieves and returns the list of tasks for a specific team."""
+    from backend.app.models import fetch_team_tasks
+
+    tasks = fetch_team_tasks(team_id)
+    if not tasks:
+        return jsonify({'message': 'Team not found or no tasks for team'}), 404
+
+    tasks_data = [{
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'status': task.status,
+        'team_id': task.team_id,
+        'assignee_id': task.assignee_id
+    } for task in tasks]
+
+    return jsonify(tasks_data), 200
