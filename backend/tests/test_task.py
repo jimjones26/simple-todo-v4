@@ -1,5 +1,5 @@
 import pytest
-from backend.app.models import Task, create_task
+from backend.app.models import Task, create_task, create_user, create_team
 from backend.app import db
 
 def test_create_task_success(app):
@@ -90,3 +90,39 @@ def test_update_task_deadline(app):
         # Verify the database record's deadline
         retrieved_task = db.session.get(Task, task.id)
         assert retrieved_task.deadline == new_deadline
+
+def test_get_user_tasks(app):
+    """Test fetching tasks assigned to a specific user."""
+    with app.app_context():
+        # Create a team
+        team = create_team(name="Test Team", description="Test team")
+
+        # Create a user
+        user1 = create_user(username="Test User 1", email="test1@example.com", password="password", role="user")
+        user2 = create_user(username="Test User 2", email="test2@example.com", password="password", role="user")
+
+        # Create tasks assigned to the user
+        task1 = create_task(title="Task 1", description="Task 1 for Test User 1", team_id=team.id)
+        task2 = create_task(title="Task 2", description="Task 2 for Test User 1", team_id=team.id)
+        task3 = create_task(title="Task 3", description="Task 3 for Test User 2", team_id=team.id)
+
+        task1.assign_user(user1)
+        task2.assign_user(user1)
+        task3.assign_user(user2)
+
+        db.session.commit()
+
+        # Fetch tasks for user1 (This part will fail until get_user_tasks is implemented)
+        from backend.app.models import get_user_tasks  # Import when needed
+        user1_tasks = get_user_tasks(user1.id)
+
+        # Assert that the correct tasks are returned
+        assert len(user1_tasks) == 2
+        assert task1 in user1_tasks
+        assert task2 in user1_tasks
+        assert task3 not in user1_tasks
+
+        # Fetch tasks for user2
+        user2_tasks = get_user_tasks(user2.id)
+        assert len(user2_tasks) == 1
+        assert task3 in user2_tasks
