@@ -285,3 +285,32 @@ def assign_user_to_task(task_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error assigning task'}), 500
+
+@bp.route('/tasks/<int:task_id>/status', methods=['PATCH'])
+@login_required
+def update_task_status(task_id):
+    """Updates the status of a specific task."""
+
+    # Verify admin permissions
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    # Find the task
+    from backend.app.models import Task  # Avoid circular import
+    task = Task.query.get(task_id)
+    if not task:
+        return jsonify({'message': 'Task not found'}), 404
+
+    # Get request data
+    data = request.get_json()
+    if not data or 'status' not in data:
+        return jsonify({'message': 'Status is required'}), 400
+
+    # Update the task status
+    new_status = data['status']
+    try:
+        task.update_status(new_status)
+        return jsonify({'message': 'Task status updated'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error updating task status'}), 500
