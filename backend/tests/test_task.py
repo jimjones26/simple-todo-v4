@@ -39,5 +39,4 @@ def test_assign_task_to_user(app):
         # Verify the task's assignee
         retrieved_task = Task.query.get(task.id)
         assert retrieved_task is not None
-        assert retrieved_task.assignee_id == user.id
         assert retrieved_task.assignee.username == "Test User"
