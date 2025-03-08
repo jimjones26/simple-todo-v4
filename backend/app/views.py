@@ -249,3 +249,39 @@ def create_task_route():
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error creating task'}), 500
+
+@bp.route('/tasks/<int:task_id>/assign', methods=['PATCH'])
+@login_required
+def assign_user_to_task(task_id):
+    """Assigns a user to a task."""
+    # Verify admin permissions - only admins can assign tasks
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    data = request.get_json()
+
+    if not data or 'user_id' not in data:
+        return jsonify({'message': 'User ID is required'}), 400
+
+    user_id = data['user_id']
+
+    try:
+        from backend.app.models import Task, User  # Import here to avoid circular import
+        task = Task.query.get(task_id)
+        user = User.query.get(user_id)
+
+        if not task:
+            return jsonify({'message': 'Task not found'}), 404
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+
+        task.assign_user(user)
+        db.session.commit()
+
+        return jsonify({'message': 'Task assigned successfully'}), 200
+
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error assigning task'}), 500
