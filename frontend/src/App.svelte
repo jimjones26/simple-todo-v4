@@ -11,6 +11,7 @@
   import TaskAssign from "./components/TaskAssign.svelte";
   import UserTasks from "./components/UserTasks.svelte";
   import TaskDeadline from "./components/TaskDeadline.svelte";
+  import TeamTasks from "./components/TeamTasks.svelte";
 
   let logoutError = "";
   let teams = [];
@@ -53,6 +54,7 @@
     <TaskDeadline />
     <TaskAssign task={""} users={""} />
     <UserTasks />
+    <TeamTasks teamId={1} />
   {/if}
 
   {#if !$auth.isAuthenticated}
