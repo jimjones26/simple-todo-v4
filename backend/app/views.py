@@ -119,7 +119,7 @@ def add_users_to_team(team_id):
         return jsonify({'message': 'Admin access required'}), 403
     
     # Find target team
-    team = Team.query.get(team_id)
+    team = db.session.get(Team, team_id)
     if not team:
         return jsonify({'message': 'Team not found'}), 404
 
@@ -189,7 +189,7 @@ def remove_users_from_team(team_id):
         return jsonify({'message': 'Admin access required'}), 403
 
     # Find target team
-    team = Team.query.get(team_id)
+    team = db.session.get(Team, team_id)
     if not team:
         return jsonify({'message': 'Team not found'}), 404
 
@@ -267,8 +267,8 @@ def assign_user_to_task(task_id):
 
     try:
         from backend.app.models import Task, User  # Import here to avoid circular import
-        task = Task.query.get(task_id)
-        user = User.query.get(user_id)
+        task = db.session.get(Task, task_id)
+        user = db.session.get(User, user_id)
 
         if not task:
             return jsonify({'message': 'Task not found'}), 404
@@ -297,7 +297,7 @@ def update_task_status(task_id):
 
     # Find the task
     from backend.app.models import Task  # Avoid circular import
-    task = Task.query.get(task_id)
+    task = db.session.get(Task, task_id)
     if not task:
         return jsonify({'message': 'Task not found'}), 404
 

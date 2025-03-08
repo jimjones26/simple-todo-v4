@@ -20,7 +20,7 @@ def test_create_task_success(app):
         assert task.team_id == team.id
 
         # Verify the task is in the database
-        retrieved_task = Task.query.get(task.id)
+        retrieved_task = db.session.get(Task, task.id)
         assert retrieved_task is not None
         assert retrieved_task.title == "Test Task"
 
@@ -39,7 +39,7 @@ def test_assign_task_to_user(app):
         db.session.commit()
 
         # Verify the task's assignee
-        retrieved_task = Task.query.get(task.id)
+        retrieved_task = db.session.get(Task, task.id)
         assert retrieved_task is not None
         assert retrieved_task.assignee.username == "Test User"
 
@@ -64,5 +64,5 @@ def test_update_task_status(app):
         assert task.status == new_status
 
         # Verify the database record's status
-        retrieved_task = Task.query.get(task.id)
+        retrieved_task = db.session.get(Task, task.id)
         assert retrieved_task.status == new_status

@@ -164,7 +164,7 @@ def test_add_users_to_team_api(client):
 
     # Verify database state
     with client.application.app_context():
-        updated_team = Team.query.get(team.id)
+        updated_team = db.session.get(Team, team.id)
         assert len(updated_team.users) == 3
         assert {user.id for user in updated_team.users} == set(user_ids)
 
@@ -223,7 +223,7 @@ def test_remove_users_from_team_api(client):
             assert response.json['message'] == "Users removed successfully"
 
             # Verify database state
-            updated_team = Team.query.get(team_id)
+            updated_team = db.session.get(Team, team_id)
             assert len(updated_team.users) == 1
             remaining_usernames = {u.username for u in updated_team.users}
             assert 'keep_api_3' in remaining_usernames
@@ -407,7 +407,7 @@ def test_patch_task_status(client):
     # 6. Assert database update
     with client.application.app_context():
         from backend.app.models import Task
-        updated_task = Task.query.get(task_id)
+        updated_task = db.session.get(Task, task_id)
         assert updated_task.status == new_status
 
     # 7. Negative test cases

@@ -129,7 +129,7 @@ def remove_users_from_team(team_id, user_ids):
     Raises:
         ValueError: If team isn't found or database error occurs
     """
-    team = Team.query.get(team_id)
+    team = db.session.get(Team, team_id)
     if not team:
         raise ValueError("Team not found")
     
@@ -155,7 +155,7 @@ def create_task(title, description, team_id):
     if not team_id:
         raise ValueError("Team ID is required")
 
-    team = Team.query.get(team_id)
+    team = db.session.get(Team, team_id)
     if not team:
         raise ValueError("Team not found")
 

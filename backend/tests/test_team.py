@@ -33,7 +33,7 @@ def test_add_users_to_team(app):
         db.session.commit()
 
         # Verify database state
-        saved_team = Team.query.get(test_team.id)
+        saved_team = db.session.get(Team, test_team.id)
         assert len(saved_team.users) == 2
         assert user1 in saved_team.users
         assert user2 in saved_team.users
@@ -58,7 +58,7 @@ def test_remove_users_from_team_updates_membership(app):
             remove_users_from_team(team_id=test_team.id, user_ids=[user1.id, user2.id])
 
             # Verify updated membership
-            updated_team = Team.query.get(test_team.id)
+            updated_team = db.session.get(Team, test_team.id)
             assert len(updated_team.users) == 1
             assert user3 in updated_team.users
             assert user1 not in updated_team.users
