@@ -24,7 +24,7 @@
         user_id: selectedUser,
       });
 
-      successMessage = response.message || "User assigned successfully!";
+      successMessage = response.message || "Task assigned successfully";
     } catch (error) {
       errorMessage = error.message || "An unexpected error occurred.";
     } finally {

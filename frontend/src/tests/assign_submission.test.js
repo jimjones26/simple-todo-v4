@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/svelte';
 import TaskAssign from '../components/TaskAssign.svelte';
 import { patch } from '../utils/api.js';
@@ -34,7 +35,7 @@ describe('TaskAssign submission', () => {
 
     // Check if the success message is displayed
     await waitFor(() => {
-      expect(screen.getByText('User assigned successfully!')).toBeInTheDocument();
+      expect(screen.getByText('Task assigned successfully')).toBeInTheDocument();
     });
   });
 
