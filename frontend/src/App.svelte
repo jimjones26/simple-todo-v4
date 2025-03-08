@@ -9,6 +9,8 @@
   import TeamUsers from "./components/TeamUsers.svelte";
   import TaskForm from "./components/TaskForm.svelte";
   import TaskAssign from "./components/TaskAssign.svelte";
+  import UserTasks from "./components/UserTasks.svelte";
+  import TaskDeadline from "./components/TaskDeadline.svelte";
 
   let logoutError = "";
   let teams = [];
@@ -48,6 +50,9 @@
     <TeamForm />
     <TeamUsers {teams} {allUsers} />
     <TaskForm {teams} />
+    <TaskDeadline />
+    <TaskAssign task={""} users={""} />
+    <UserTasks />
   {/if}
 
   {#if !$auth.isAuthenticated}
