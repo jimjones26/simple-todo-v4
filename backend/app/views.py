@@ -1,4 +1,6 @@
 from flask import request, jsonify, Blueprint
+from datetime import datetime
+from dateutil import parser
 from backend.app import db
 from backend.app.models import User, create_user, create_team, Team  # Import from models.py
 from sqlalchemy.exc import IntegrityError
@@ -316,3 +318,37 @@ def update_task_status(task_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error updating task status'}), 500
+
+@bp.route('/tasks/<int:task_id>/deadline', methods=['PATCH'])
+@login_required
+def update_task_deadline_route(task_id):
+    """Update deadline for a specific task"""
+    try:
+        # Verify admin permissions
+        if current_user.role != 'admin':
+            return jsonify({'message': 'Admin access required'}), 403
+        
+        # Validate request format
+        if not request.is_json:
+            return jsonify({'message': 'Request must be JSON'}), 400
+        
+        data = request.get_json()
+        if 'deadline' not in data:
+            return jsonify({'message': 'Deadline field required'}), 400
+        
+        # Convert ISO string to datetime object (supports with/without timezone)
+        try:
+            new_deadline = parser.isoparse(data['deadline'])
+        except (ValueError, TypeError) as e:
+            return jsonify({'message': f'Invalid datetime format: {str(e)}'}), 400
+            
+        # Update via model function
+        from backend.app.models import update_task_deadline
+        updated_task = update_task_deadline(task_id, new_deadline)
+        return jsonify({'message': 'Deadline updated successfully'}), 200
+        
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Server error updating deadline'}), 500
