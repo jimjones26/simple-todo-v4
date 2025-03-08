@@ -59,7 +59,7 @@ def test_update_task_status(app):
         # Update the task's status
         new_status = "in progress"
         task.status = new_status  # Update will happen in the next step, this is prep
-        db.session.commit()  # The update method will do this, this is prep
+        # db.session.commit()  # The update method will do this, this is prep
 
         # Verify the in-memory object's status
         assert task.status == new_status
