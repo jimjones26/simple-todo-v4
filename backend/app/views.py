@@ -2,7 +2,7 @@ from flask import request, jsonify, Blueprint
 from datetime import datetime
 from dateutil import parser
 from backend.app import db
-from backend.app.models import User, create_user, create_team, Team  # Import from models.py
+from backend.app.models import User, create_user, create_team, Team, Task, get_user_tasks  # Import from models.py
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -352,3 +352,23 @@ def update_task_deadline_route(task_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error updating deadline'}), 500
+
+@bp.route('/users/<int:user_id>/tasks', methods=['GET'])
+@login_required
+def get_user_tasks_route(user_id):
+    """Retrieves and returns the list of tasks assigned to a user."""
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    tasks = get_user_tasks(user_id)
+    tasks_data = [{
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'status': task.status,
+        'team_id': task.team_id,
+        'assignee_id': task.assignee_id
+    } for task in tasks]
+
+    return jsonify(tasks_data), 200
