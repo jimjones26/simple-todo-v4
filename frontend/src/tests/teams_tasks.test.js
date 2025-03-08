@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import TeamTasks from '../components/TeamTasks.svelte';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 
 describe('TeamTasks Component', () => {
   it('renders without errors', () => {
