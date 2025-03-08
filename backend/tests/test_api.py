@@ -306,3 +306,56 @@ def test_create_task_api(client):
     response = client.post('/tasks', json=invalid_data)
     assert response.status_code == 400
     assert 'message' in response.get_json()
+
+def test_assign_user_to_task_api(client):
+    """Test assigning a user to a task via API"""
+    # Create admin user and login
+    admin_data = {
+        'username': 'assignadmin',
+        'email': 'assignadmin@example.com',
+        'password': 'adminpass123',
+        'role': 'admin'
+    }
+    create_response = client.post('/users', json=admin_data)
+    assert create_response.status_code == 201
+
+    login_response = client.post('/login', json={
+        'username': 'assignadmin',
+        'password': 'adminpass123'
+    })
+    assert login_response.status_code == 200
+
+    # Create a team
+    team_data = {
+        'name': 'Assign Team',
+        'description': 'Team for assign task test'
+    }
+    team_response = client.post('/teams', json=team_data)
+    assert team_response.status_code == 201
+    team_id = team_response.json['id']
+
+    # Create a task
+    task_data = {
+        'title': 'Assign Task API',
+        'description': 'Task created via API',
+        'team_id': team_id
+    }
+    task_response = client.post('/tasks', json=task_data)
+    assert task_response.status_code == 201
+    task_id = task_response.json['id']
+
+    # Create a user to assign
+    user_data = {
+        'username': 'assignuser',
+        'email': 'assignuser@example.com',
+        'password': 'userpass123',
+        'role': 'user'
+    }
+    user_response = client.post('/users', json=user_data)
+    assert user_response.status_code == 201
+    user_id = user_response.json['id']
+
+    # Assign the user to the task
+    response = client.patch(f'/tasks/{task_id}/assign', json={'user_id': user_id})
+    assert response.status_code == 200
+    assert response.json['message'] == 'Task assigned successfully'
