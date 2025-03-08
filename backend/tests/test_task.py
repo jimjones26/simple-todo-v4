@@ -42,3 +42,28 @@ def test_assign_task_to_user(app):
         retrieved_task = Task.query.get(task.id)
         assert retrieved_task is not None
         assert retrieved_task.assignee.username == "Test User"
+
+def test_update_task_status(app):
+    """Test updating a task's status saves the change to the database."""
+    with app.app_context():
+        from backend.app.models import create_team, create_task
+
+        # Create a team and a task
+        team = create_team(name="Test Team", description="Test team")
+        task = create_task(
+            title="Test Task",
+            description="This is a test task",
+            team_id=team.id,
+        )
+
+        # Update the task's status
+        new_status = "in progress"
+        task.status = new_status  # Update will happen in the next step, this is prep
+        db.session.commit()  # The update method will do this, this is prep
+
+        # Verify the in-memory object's status
+        assert task.status == new_status
+
+        # Verify the database record's status
+        retrieved_task = Task.query.get(task.id)
+        assert retrieved_task.status == new_status
