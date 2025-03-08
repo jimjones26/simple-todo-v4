@@ -425,6 +425,12 @@ def test_patch_task_status(client):
     assert response.status_code == 403  # Forbidden
 
     # 7.2 Invalid task ID
+    client.get('/logout')  # Add this line to log out the regular user
+    client.post('/login', json={'username': 'statusadmin', 'password': 'adminpass123'}) # Log in as admin again
+    response = client.patch('/tasks/9999/status', json=patch_data)
+    assert response.status_code == 404  # Not Found
+
+    # 7.2 Invalid task ID
     client.post('/login', json={'username': 'statusadmin', 'password': 'adminpass123'}) # Log in as admin again
     response = client.patch('/tasks/9999/status', json=patch_data)
     assert response.status_code == 404  # Not Found
