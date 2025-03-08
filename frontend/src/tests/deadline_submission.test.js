@@ -44,11 +44,7 @@ describe('Deadline Form Submission', () => {
   });
 
   it('shows error message on API failure', async () => {
-    patch.mockResolvedValue({
-      ok: false,
-      status: 500,
-      json: () => Promise.resolve({ message: 'Server error' })
-    });
+    patch.mockRejectedValue(new Error('Server error'));
 
     const { getByLabelText, getByRole, findByText } = render(TaskDeadline, {
       props: { tasks: mockTasks }
