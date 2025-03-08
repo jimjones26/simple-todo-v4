@@ -1,4 +1,6 @@
 <script>
+  import { patch } from "../utils/api.js";  // Add this import
+
   export let tasks = [];
 
   let task_id = '';
@@ -7,12 +9,12 @@
   let submissionSuccess = false;
   let isSubmitting = false;
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {  // Make async
     event.preventDefault();
     submissionError = '';
     submissionSuccess = false;
 
-    // Basic validation
+    // Validation
     if (!task_id) {
       submissionError = 'Please select a task';
       return;
@@ -22,8 +24,26 @@
       return;
     }
 
-    // Submission logic will be added in Task 8
-    console.log('Deadline submission pending implementation');
+    isSubmitting = true;
+
+    try {
+      // Format deadline for API
+      const isoDeadline = new Date(deadline).toISOString();
+      
+      // Call API endpoint
+      await patch(`/tasks/${task_id}/deadline`, {
+        deadline: isoDeadline
+      });
+
+      // Reset form on success
+      task_id = '';
+      deadline = '';
+      submissionSuccess = true;
+    } catch (error) {
+      submissionError = error.message || 'Failed to update deadline';
+    } finally {
+      isSubmitting = false;
+    }
   }
 </script>
 
